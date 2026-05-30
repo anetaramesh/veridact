@@ -1,0 +1,31 @@
+# Regulation: FINRA Rule 3110(a) (Supervision — supervisory procedures for large-value wires)
+# Bank Secrecy Act 31 U.S.C. § 5318(g) (Suspicious Activity Reporting — SAR filing required
+# for transactions ≥ $5,000 that may involve money laundering).
+# FinCEN Wire Transfer Rule (31 C.F.R. § 1010.410) — recordkeeping for transfers ≥ $3,000.
+# The $1,000,000 threshold used here is a supervisory control requiring additional human
+# approval before an AI agent may autonomously execute the transfer.
+#
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED: threshold amount and escalation workflow must be
+# validated against the firm's written supervisory procedures (WSPs).
+
+id: finra_wire_threshold
+name: FINRA Large Wire Transfer Threshold
+regulation_ref: "FINRA Rule 3110(a); BSA 31 U.S.C. § 5318(g); 31 C.F.R. § 1010.410"
+description: >
+  Blocks autonomous wire transfers exceeding $1,000,000 USD without additional
+  human supervisory approval.
+  Implements: FINRA Rule 3110(a) (supervisory procedures);
+  Bank Secrecy Act 31 U.S.C. § 5318(g) (SAR obligations);
+  FinCEN Wire Transfer Rule 31 C.F.R. § 1010.410.
+check_type: threshold
+action_types:
+  - wire_transfer
+params:
+  field: amount
+  max_value: 1000000
+violation_code: WIRE_THRESHOLD_EXCEEDED
+severity: soft_hold
+rationale_template: >
+  Wire transfer amount ${amount} exceeds the $1,000,000 autonomous-execution limit.
+  Human supervisory approval required under FINRA Rule 3110(a) written supervisory procedures.
+  Submit a manual approval request to the compliance desk.

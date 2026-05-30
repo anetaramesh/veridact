@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "veridact"
+version = "0.1.0"
+description = "Agentic AI liability auditor"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.29.0",
+    "pydantic>=2.7.0",
+    "pyyaml>=6.0.1",
+    "aiosqlite>=0.20.0",
+    "httpx>=0.27.0",
+    # agent-os (Microsoft Agent Governance Toolkit) — not yet on PyPI.
+    # Add "agent-os>=<version>" here once the package is released.
+    # The engine falls back to rule-only mode if this package is absent.
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-httpx>=0.30.0",
+    "anyio>=4.4.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[[tool.hatch.envs.default.matrix]]
+python = ["3.11"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+# SDK sub-package
+[project.entry-points."veridact.sdk"]
+client = "sdk.client:AuditorClient"

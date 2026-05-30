@@ -1,0 +1,87 @@
+# ============================================================
+# Veridact FINRA Rule Pack — YAML Rule Template
+# ============================================================
+# Copy this file, rename it (e.g. finra_my_rule.yaml), and fill
+# in each field.  Remove all comment lines before committing.
+#
+# REGULATORY ACCURACY REQUIREMENT (see CLAUDE.md):
+#   Every rule MUST cite the exact regulation and section it
+#   implements.  Do not invent regulatory interpretations.
+#   Flag any non-obvious interpretation for regulatory counsel.
+# ============================================================
+
+# Unique machine-readable identifier.  Use snake_case.
+# Convention: <regulator>_<topic>_<sequence>
+# Example: finra_ofac_001
+id: finra_example_001
+
+# Human-readable name shown in violation reports and dashboards.
+name: "FINRA Example Rule"
+
+# Precise regulatory citation.  Include the regulator, rule number,
+# and sub-section.  Multiple citations are comma-separated.
+# Example: "FINRA Rule 3110(a); BSA 31 U.S.C. § 5318(g)"
+regulation_ref: "FINRA Rule XXXX(x); Statute § X.XXX"
+
+# Full description including regulatory context and what the rule
+# enforces.  This is what a compliance officer reads to understand
+# why the rule exists.
+description: >
+  Describe what this rule blocks or flags and why.
+  Include the specific regulatory obligation it satisfies.
+  Implements: FINRA Rule XXXX(x); [additional citations].
+
+# Evaluation strategy.  Must be one of:
+#   sanctions_list  — blocks if a field value appears in a list
+#   threshold       — blocks if a numeric field exceeds a limit
+#   account_status  — blocks if an account is in a restricted list
+#   pattern_match   — blocks if a field value matches a regex
+check_type: sanctions_list
+
+# List of action_types this rule applies to.
+# Use ["*"] to apply to every action type.
+# Common values: wire_transfer, ach_payment, internal_transfer,
+#                check_issuance, equity_trade, option_trade
+action_types:
+  - wire_transfer
+  - ach_payment
+
+# Strategy-specific parameters.  Required keys depend on check_type:
+#
+#   sanctions_list:
+#     field: <request field to check>       # e.g. recipient_id
+#     sanctions_list: [<id>, ...]           # stub; use live feed in prod
+#
+#   threshold:
+#     field: <numeric field to check>       # e.g. amount
+#     max_value: <float>                    # inclusive upper bound
+#
+#   account_status:
+#     field: <field holding account id>     # e.g. account_id
+#     frozen_accounts: [<id>, ...]          # stub; use live feed in prod
+#
+#   pattern_match:
+#     field: <field to match against>       # e.g. memo
+#     pattern: <Python regex>               # e.g. "(?i)cash\s*advance"
+params:
+  field: recipient_id
+  sanctions_list:
+    - EXAMPLE-SDN-001
+
+# Short code emitted when this rule fires.  Use SCREAMING_SNAKE_CASE.
+# Must be unique across all rules in the pack.
+violation_code: EXAMPLE_VIOLATION_CODE
+
+# Enforcement level:
+#   hard_block — action is rejected immediately; no override path
+#   soft_hold  — action is paused pending human supervisory approval
+#   flag       — action proceeds but is flagged for post-hoc review
+severity: hard_block
+
+# Plain-English rationale shown to the agent and recorded in the
+# audit log when this rule fires.  Use {field_name} placeholders
+# for values from the request parameters.
+rationale_template: >
+  Field '{field}' value '{value}' triggered rule finra_example_001.
+  Action blocked under [regulation citation].
+  Contact the compliance desk with reference code EXAMPLE_VIOLATION_CODE.

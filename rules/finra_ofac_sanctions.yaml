@@ -1,0 +1,37 @@
+# Regulation: Bank Secrecy Act (31 U.S.C. § 5318(l)); OFAC SDN List (31 C.F.R. Part 501)
+# FINRA Rule 3310 (Anti-Money Laundering Compliance Program) — requires member firms to
+# implement a written AML program that includes screening against OFAC's SDN list.
+# SEC guidance: FinCEN CIP rules (31 C.F.R. § 1023.220) for broker-dealers.
+#
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before changing the sanctions_list in production.
+# Production deployments must pull live SDN data from the OFAC API, not a static list.
+
+id: finra_ofac_sanctions
+name: FINRA OFAC Sanctions Check
+regulation_ref: "FINRA Rule 3310; BSA 31 U.S.C. § 5318(l); 31 C.F.R. Part 501"
+description: >
+  Blocks any wire transfer or payment whose recipient appears on the OFAC
+  Specially Designated Nationals (SDN) sanctions list.
+  Implements: FINRA Rule 3310; Bank Secrecy Act 31 U.S.C. § 5318(l);
+  31 C.F.R. Part 501 (OFAC); FinCEN CIP Rule 31 C.F.R. § 1023.220.
+check_type: sanctions_list
+action_types:
+  - wire_transfer
+  - ach_payment
+  - internal_transfer
+  - check_issuance
+params:
+  field: recipient_id
+  # STUB LIST — replace with live OFAC SDN API feed before production deployment.
+  sanctions_list:
+    - SDN-001
+    - SDN-002
+    - SDN-003
+    - BLOCKED-ENTITY-A
+    - BLOCKED-ENTITY-B
+violation_code: OFAC_SANCTIONS_MATCH
+severity: hard_block
+rationale_template: >
+  Recipient '{recipient_id}' appears on the OFAC Specially Designated Nationals list.
+  Wire transfer blocked under FINRA Rule 3310 and 31 C.F.R. Part 501.
+  Contact compliance before retrying.
