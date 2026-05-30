@@ -8,8 +8,10 @@ from typing import AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 import src.engine.audit_log as audit_log
+from src.api.routes.audit import router as audit_router
 from src.api.routes.validate import router as validate_router
 from src.engine.governance import GovernanceEngine
 from src.rules.loader import load_rules
@@ -49,11 +51,17 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     app.include_router(validate_router)
+    app.include_router(audit_router)
 
     @app.get("/health", summary="Liveness probe")
     async def health() -> JSONResponse:
         """Return service status and number of loaded rules."""
         return JSONResponse({"status": "ok", "rules_loaded": len(app.state.rules)})
+
+    # Serve React dashboard build if it exists
+    dashboard_dist = Path(__file__).parent.parent.parent / "dashboard" / "dist"
+    if dashboard_dist.exists():
+        app.mount("/dashboard", StaticFiles(directory=str(dashboard_dist), html=True), name="dashboard")
 
     return app
 

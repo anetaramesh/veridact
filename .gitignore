@@ -12,3 +12,9 @@ build/
 venv/
 *.db
 *.db-journal
+.env
+.env.*
+
+# Dashboard
+dashboard/node_modules/
+dashboard/dist/
