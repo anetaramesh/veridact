@@ -28,6 +28,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     app.state.rules = load_rules(RULES_DIR)
     app.state.governance = GovernanceEngine(rules=app.state.rules)
+    app.state.policy_set = ",".join(
+        sorted(p.name for p in RULES_DIR.glob("*.yaml"))
+    )
     logger.info("Veridact startup complete: %d rules loaded", len(app.state.rules))
     yield
     logger.info("Veridact shutdown.")
