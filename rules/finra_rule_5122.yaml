@@ -1,0 +1,28 @@
+# Source: FINRA Rulebook — Rule 5122, Private Placements of Securities Issued by Members
+# Effective: June 17, 2009 (SR-FINRA-2008-019)
+# Rule text: Members that sell private placement securities issued by the member or a
+# control affiliate must file offering documents with FINRA and make specific disclosures.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_5122
+name: FINRA Rule 5122 — Private Placements by Members
+regulation_ref: "FINRA Rule 5122; SR-FINRA-2008-019 eff. June 17, 2009"
+description: >
+  Flags private placement transactions where the issuer is a FINRA member or
+  control affiliate without a documented FINRA filing reference number.
+  Implements: FINRA Rule 5122 — members selling their own private placements
+  must file offering documents with FINRA before selling to customers.
+check_type: required_fields
+action_types:
+  - equity_trade
+  - wire_transfer
+params:
+  required:
+    - customer_id
+    - account_id
+    - finra_filing_ref
+violation_code: MEMBER_PRIVATE_PLACEMENT_FILING_MISSING
+severity: flag
+rationale_template: >
+  Member private placement transaction is missing a FINRA filing reference:
+  {missing_fields}. Transaction held under FINRA Rule 5122 — offering documents
+  for member-issued private placements must be filed with FINRA before sale.

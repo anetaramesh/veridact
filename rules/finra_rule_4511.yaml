@@ -1,0 +1,40 @@
+# Source: FINRA Rulebook — Rule 4511, General Requirements (Books and Records)
+# https://www.finra.org/rules-guidance/rulebooks/finra-rules/4511
+# Effective: December 5, 2011 (SR-FINRA-2011-016)
+# Implements: SEA § 17(a); SEC Rule 17a-3 (17 C.F.R. § 240.17a-3)
+#
+# Rule text (verbatim excerpt):
+#   "(a) General Requirements. Each member shall make and preserve books
+#   and records as required under the FINRA rules, the Exchange Act and
+#   the applicable Exchange Act rules.
+#   (b) Retention Period. All books and records required to be made
+#   pursuant to the FINRA rules shall be preserved for a period of at
+#   least six years, the first two years in an easily accessible place,
+#   unless otherwise specified."
+#
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: finra_rule_4511
+name: FINRA Rule 4511 — General Requirements (Books and Records)
+regulation_ref: "FINRA Rule 4511; SEA § 17(a); 17 C.F.R. § 240.17a-3; SR-FINRA-2011-016 eff. December 5, 2011"
+description: >
+  Blocks all transactions on accounts that have been placed under a regulatory
+  or court-ordered freeze, ensuring books and records integrity is preserved.
+  No transactions may be executed against a frozen account.
+  Implements: FINRA Rule 4511 (books and records); SEC Rule 17a-3.
+check_type: account_status
+action_types:
+  - "*"
+params:
+  field: account_id
+  # Accounts subject to regulatory freeze, court order, or fraud investigation.
+  # Live BrokerCheck lookups via FinraDataProvider.is_account_restricted()
+  # when FINRA_CREDENTIAL_TYPE=firm is configured.
+  frozen_accounts: []
+violation_code: BOOKS_RECORDS_ACCOUNT_FROZEN
+severity: hard_block
+rationale_template: >
+  Account '{account_id}' is subject to a regulatory freeze or court order.
+  All transactions are blocked under FINRA Rule 4511 and SEC Rule 17a-3.
+  Books and records for this account must be preserved. Contact the
+  compliance desk to resolve the account restriction before retrying.

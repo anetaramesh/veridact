@@ -1,0 +1,27 @@
+# Source: FINRA Rulebook — Rule 5130, Restrictions on the Purchase and Sale of IPO Equity Securities
+# Effective: January 1, 2011 (SR-FINRA-2009-065)
+# Rule text: No member shall sell a new issue to any account in which a restricted person
+# has a beneficial interest. A "restricted person" includes FINRA member firms and their
+# associated persons, certain portfolio managers, and certain finders and fiduciaries.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_5130
+name: FINRA Rule 5130 — Restrictions on IPO Equity Securities
+regulation_ref: "FINRA Rule 5130; SR-FINRA-2009-065 eff. January 1, 2011"
+description: >
+  Blocks IPO allocations to accounts flagged as belonging to restricted persons
+  (FINRA members, associated persons, portfolio managers, and finders).
+  Implements: FINRA Rule 5130 — members may not sell new issues to accounts
+  in which restricted persons have a beneficial interest.
+check_type: account_status
+action_types:
+  - equity_trade
+params:
+  field: account_id
+  frozen_accounts: []
+violation_code: IPO_RESTRICTED_PERSON
+severity: hard_block
+rationale_template: >
+  Account '{account_id}' is flagged as belonging to a restricted person under
+  FINRA Rule 5130. IPO allocation blocked — new issues may not be sold to
+  accounts in which restricted persons have a beneficial interest. Contact
+  the compliance desk to verify account eligibility.

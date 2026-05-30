@@ -31,6 +31,8 @@ def load_rules(rules_dir: str | Path) -> list[RuleDefinition]:
     rules: list[RuleDefinition] = []
 
     for yaml_file in sorted(rules_path.glob("*.yaml")):
+        if yaml_file.stem.upper() == "TEMPLATE":
+            continue
         with yaml_file.open() as f:
             data = yaml.safe_load(f)
 

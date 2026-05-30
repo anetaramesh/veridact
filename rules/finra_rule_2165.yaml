@@ -1,0 +1,43 @@
+# Source: FINRA Rulebook — Rule 2165, Financial Exploitation of Specified Adults
+# https://www.finra.org/rules-guidance/rulebooks/finra-rules/2165
+# Effective: February 5, 2018 (SR-FINRA-2016-039)
+#
+# Rule text (verbatim excerpt):
+#   "No member or associated person shall make an external transfer of funds or
+#   securities from the account of a Specified Adult if the member or associated
+#   person reasonably believes that financial exploitation of the Specified Adult
+#   has occurred, is occurring, has been attempted, or will be attempted."
+#   A "Specified Adult" is (a) a natural person age 65 or older, or
+#   (b) a natural person age 18 or older who the member reasonably believes has
+#   a mental or physical impairment that renders the individual unable to
+#   protect their own interests.
+#
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: finra_rule_2165
+name: FINRA Rule 2165 — Financial Exploitation of Specified Adults
+regulation_ref: "FINRA Rule 2165; SR-FINRA-2016-039 eff. February 5, 2018"
+description: >
+  Places a temporary hold and escalates for supervisory review when a wire
+  transfer or disbursement is requested on an account flagged as belonging to
+  a Specified Adult (age 65+ or cognitively impaired individual) where
+  exploitation is suspected.
+  Implements: FINRA Rule 2165 — Financial Exploitation of Specified Adults.
+check_type: account_status
+action_types:
+  - wire_transfer
+  - ach_payment
+  - check_issuance
+  - internal_transfer
+params:
+  field: account_id
+  # Accounts flagged as belonging to Specified Adults under active exploitation review.
+  # In production, populate via case-management system or firm CRM flag.
+  # frozen_accounts is intentionally empty — populate via firm's case management system.
+  frozen_accounts: []
+violation_code: SPECIFIED_ADULT_EXPLOITATION_HOLD
+severity: soft_hold
+rationale_template: >
+  Account '{account_id}' is flagged under FINRA Rule 2165 — Financial Exploitation
+  of Specified Adults. The transaction is placed on temporary hold pending
+  supervisory review. Contact the compliance desk before proceeding.

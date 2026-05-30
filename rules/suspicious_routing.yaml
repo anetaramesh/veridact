@@ -1,0 +1,25 @@
+# Regulation: Bank Secrecy Act 31 U.S.C. § 5318(g) (SAR filing for suspected layering/structuring);
+# FinCEN Guidance FIN-2010-G004 (structuring and layering red flags).
+# Requires human review before an AI agent proceeds when routing metadata
+# indicates potential evasion techniques (layering, smurfing, shell routing).
+
+id: suspicious_routing
+name: Suspicious Routing Pattern Detection
+regulation_ref: "BSA 31 U.S.C. § 5318(g); FinCEN FIN-2010-G004"
+description: >
+  Escalates for human review when routing notes contain keywords associated
+  with common money-laundering techniques (layering, structuring, shell accounts).
+  Implements: BSA 31 U.S.C. § 5318(g) SAR obligations; FinCEN layering guidance.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+params:
+  field: routing_note
+  pattern: "(?i)(layer|evad|shell|smur|structur|offshore_pass|intermediar)"
+violation_code: SUSPICIOUS_ROUTING
+severity: soft_hold
+rationale_template: >
+  Routing metadata contains language associated with layering or evasion techniques.
+  Transaction escalated for human review under BSA 31 U.S.C. § 5318(g).
+  A SAR filing may be required. Do not inform the customer that a SAR is being filed.

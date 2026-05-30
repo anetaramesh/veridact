@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import logging
+
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 import src.engine.audit_log as audit_log
 from src.engine.audit_log import AuditEntry
@@ -54,3 +58,22 @@ async def verify() -> ChainStatus:
         entry_count=result.entry_count,
         broken_at=result.broken_at,
     )
+
+
+@router.post("/reset", summary="Reset audit log (dev/demo only)")
+async def reset() -> dict:
+    """Drop and recreate the audit_entries table, starting a fresh chain.
+
+    Intended for demo and development use only. In production this endpoint
+    should be removed or protected behind authentication.
+    """
+    import aiosqlite
+    db_path = audit_log.DB_PATH
+    async with aiosqlite.connect(db_path) as db:
+        await db.execute("DROP TRIGGER IF EXISTS prevent_update")
+        await db.execute("DROP TRIGGER IF EXISTS prevent_delete")
+        await db.execute("DROP TABLE IF EXISTS audit_entries")
+        await db.commit()
+    await audit_log.init_db(db_path)
+    logger.warning("Audit log reset — all entries deleted and chain restarted.")
+    return {"reset": True}

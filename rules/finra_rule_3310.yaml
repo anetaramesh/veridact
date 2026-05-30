@@ -1,0 +1,43 @@
+# Source: FINRA Rulebook — Rule 3310, Anti-Money Laundering Compliance Program
+# https://www.finra.org/rules-guidance/rulebooks/finra-rules/3310
+# Effective: April 9, 2012 (SR-FINRA-2011-028)
+# Implements: Bank Secrecy Act 31 U.S.C. § 5318(h); 31 C.F.R. § 1023.210
+#
+# Rule text (verbatim excerpt):
+#   "Each member shall develop and implement a written anti-money laundering
+#   program reasonably designed to achieve and monitor the member's compliance
+#   with the requirements of the Bank Secrecy Act (31 U.S.C. 5311, et seq.),
+#   and the implementing regulations promulgated thereunder by the Department
+#   of the Treasury. Each member's anti-money laundering program must be
+#   approved in writing by a member of senior management."
+#
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: finra_rule_3310
+name: FINRA Rule 3310 — Anti-Money Laundering Compliance Program
+regulation_ref: "FINRA Rule 3310; BSA 31 U.S.C. § 5318(h); 31 C.F.R. § 1023.210; SR-FINRA-2011-028 eff. April 9, 2012"
+description: >
+  Screens wire transfers and payments against the OFAC SDN list and flags
+  structuring patterns (multiple transactions just below SAR thresholds)
+  consistent with money laundering activity.
+  Implements: FINRA Rule 3310 (AML); Bank Secrecy Act 31 U.S.C. § 5318(h);
+  FinCEN regulations 31 C.F.R. § 1023.210.
+check_type: sanctions_list
+action_types:
+  - wire_transfer
+  - ach_payment
+  - internal_transfer
+  - check_issuance
+params:
+  field: recipient_id
+  # Live OFAC SDN screening via FinraDataProvider.is_sanctioned() when
+  # FINRA_CLIENT_ID and FINRA_CLIENT_SECRET are configured.
+  # Empty list is intentional — populated at runtime by the live data provider.
+  sanctions_list: []
+violation_code: AML_SANCTIONS_MATCH
+severity: hard_block
+rationale_template: >
+  Recipient '{recipient_id}' matches a record on the OFAC Specially Designated
+  Nationals list. Transaction blocked under FINRA Rule 3310 (AML) and
+  31 C.F.R. § 1023.210. A Suspicious Activity Report (SAR) may be required
+  under 31 U.S.C. § 5318(g). Contact the AML compliance officer immediately.

@@ -1,0 +1,40 @@
+# Source: FINRA Rulebook — Rule 4512, Customer Account Information
+# https://www.finra.org/rules-guidance/rulebooks/finra-rules/4512
+# Effective: July 1, 2013 (SR-FINRA-2009-054)
+#
+# Rule text (verbatim excerpt):
+#   "Each member shall maintain the following information for each account
+#   with a natural person as a customer or owner: (a) Customer's name;
+#   (b) Customer's address; (c) Customer's telephone number; (d) Customer's
+#   date of birth; (e) Employment status and name of employer;
+#   (f) Annual income; (g) Net worth (excluding value of primary residence);
+#   (h) Investment objectives."
+#
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: finra_rule_4512
+name: FINRA Rule 4512 — Customer Account Information
+regulation_ref: "FINRA Rule 4512; SR-FINRA-2009-054 eff. July 1, 2013"
+description: >
+  Blocks account-opening and trading actions where mandatory customer account
+  information fields (name, date of birth, investment objectives) are absent.
+  Implements: FINRA Rule 4512 — members must maintain essential customer
+  account information for each account held by a natural person.
+check_type: required_fields
+action_types:
+  - account_open
+  - equity_trade
+  - loan_decision
+params:
+  required:
+    - customer_id
+    - account_id
+    - date_of_birth
+    - investment_objective
+violation_code: CUSTOMER_ACCOUNT_INFO_MISSING
+severity: hard_block
+rationale_template: >
+  Required customer account information is missing for this action: {missing_fields}.
+  Action blocked under FINRA Rule 4512 — members must maintain complete customer
+  account information before executing transactions. Update the customer record
+  and resubmit.

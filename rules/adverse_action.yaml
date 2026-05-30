@@ -1,0 +1,23 @@
+# Regulation: Equal Credit Opportunity Act (ECOA) 15 U.S.C. § 1691(d); Regulation B 12 C.F.R. § 202.9;
+# Fair Credit Reporting Act (FCRA) 15 U.S.C. § 1681m (adverse action notices).
+# An AI agent must not issue a credit denial without a compliant adverse action notice.
+
+id: adverse_action_notice
+name: Adverse Action Notice Compliance Check
+regulation_ref: "ECOA 15 U.S.C. § 1691(d); Reg B 12 C.F.R. § 202.9; FCRA 15 U.S.C. § 1681m"
+description: >
+  Blocks or holds loan denials where the adverse action notice is missing,
+  incomplete, or non-compliant. An AI agent may not issue a denial without
+  a ECOA/Reg B compliant adverse action notice.
+check_type: pattern_match
+action_types:
+  - loan_decision
+  - credit_approval
+params:
+  field: adverse_action_flag
+  pattern: "(?i)(missing_notice|incomplete_notice|no_notice|notice_defect)"
+violation_code: ADVERSE_ACTION_NOTICE_DEFECT
+severity: soft_hold
+rationale_template: >
+  Loan denial requires a compliant adverse action notice under ECOA § 1691(d)
+  and Regulation B § 202.9. AI agent cannot proceed — compliance desk review required.

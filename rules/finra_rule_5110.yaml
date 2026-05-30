@@ -1,0 +1,27 @@
+# Source: FINRA Rulebook — Rule 5110, Corporate Financing Rule
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: No member or person associated with a member shall participate in
+# any public offering in which the underwriting compensation and other items of value
+# received or to be received by any underwriter or related person are unfair or
+# unreasonable in relation to the total offering proceeds.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_5110
+name: FINRA Rule 5110 — Corporate Financing (Underwriting Compensation)
+regulation_ref: "FINRA Rule 5110; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Flags underwriting compensation that exceeds the FINRA guideline of 10%
+  of total offering proceeds, indicating potentially unreasonable compensation.
+  Implements: FINRA Rule 5110 — underwriting compensation must not be unfair
+  or unreasonable in relation to total offering proceeds.
+check_type: threshold
+action_types:
+  - equity_trade
+params:
+  field: underwriting_compensation_pct
+  max_value: 10.0
+violation_code: UNDERWRITING_COMPENSATION_EXCESSIVE
+severity: flag
+rationale_template: >
+  Underwriting compensation of {underwriting_compensation_pct}% may exceed FINRA
+  Rule 5110 guidelines. Flagged for review — total compensation including all
+  items of value must not be unfair or unreasonable relative to offering proceeds.

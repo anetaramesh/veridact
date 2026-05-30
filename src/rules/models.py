@@ -13,6 +13,14 @@ class CheckType(str, Enum):
     threshold = "threshold"
     account_status = "account_status"
     pattern_match = "pattern_match"
+    required_fields = "required_fields"
+
+
+class Severity(str, Enum):
+    """How hard the rule enforces a violation."""
+    hard_block = "hard_block"
+    soft_hold  = "soft_hold"
+    flag       = "flag"
 
 
 class RuleDefinition(BaseModel):
@@ -23,16 +31,20 @@ class RuleDefinition(BaseModel):
         name: Human-readable rule name shown in violation reports.
         description: Full description including regulatory citation.
         check_type: Evaluation strategy; must be a valid ``CheckType``.
+        action_types: Action types this rule applies to; ``["*"]`` means all.
         params: Strategy-specific parameters (e.g. ``sanctions_list``, ``max_value``).
         violation_code: Short code emitted when the rule fails (e.g. ``OFAC_SANCTIONS_MATCH``).
+        severity: Enforcement level — ``hard_block``, ``soft_hold``, or ``flag``.
     """
 
     id: str
     name: str
     description: str
     check_type: CheckType
+    action_types: list[str] = ["*"]
     params: dict[str, Any]
     violation_code: str
+    severity: Severity = Severity.hard_block
 
 
 class RuleResult(BaseModel):

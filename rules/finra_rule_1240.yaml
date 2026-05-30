@@ -1,0 +1,28 @@
+# Source: FINRA Rulebook — Rule 1240, Continuing Education Requirements
+# Effective: October 1, 2018 (SR-FINRA-2015-017)
+# Rule text: Each registered person must complete the Regulatory Element of the
+# Continuing Education program within 120 days of the second anniversary of their
+# initial registration, and every three years thereafter.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_1240
+name: FINRA Rule 1240 — Continuing Education Requirements
+regulation_ref: "FINRA Rule 1240; SR-FINRA-2015-017 eff. October 1, 2018"
+description: >
+  Flags transactions executed by agents whose CE (continuing education)
+  registration status is marked as lapsed or inactive.
+  Implements: FINRA Rule 1240 — registered persons must complete CE
+  requirements to maintain active registration status.
+check_type: pattern_match
+action_types:
+  - equity_trade
+  - wire_transfer
+  - ach_payment
+params:
+  field: agent_id
+  pattern: '(?i)(^CE-LAPSED-|^CE-INACTIVE-|^CE-EXPIRED-)'
+violation_code: CE_REQUIREMENT_LAPSED
+severity: soft_hold
+rationale_template: >
+  Agent '{agent_id}' continuing education status may be lapsed.
+  Transaction held under FINRA Rule 1240 — verify the agent has completed
+  required CE before executing transactions on their behalf.

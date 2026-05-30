@@ -1,0 +1,26 @@
+# Source: FINRA Rulebook — Rule 2241, Research Analysts and Research Reports
+# Effective: September 25, 2015 (SR-FINRA-2014-037)
+# Rule text: Members that publish or distribute equity research reports must establish,
+# maintain, and enforce written policies and procedures designed to identify and manage
+# conflicts of interest related to research analysts and research reports.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_2241
+name: FINRA Rule 2241 — Research Analysts and Research Reports
+regulation_ref: "FINRA Rule 2241; SR-FINRA-2014-037 eff. September 25, 2015"
+description: >
+  Blocks trades by agents identified as research analysts on securities they
+  cover, to prevent conflicts of interest between research and trading.
+  Implements: FINRA Rule 2241 — conflicts of interest between research analysts
+  and trading activities must be managed through written procedures.
+check_type: pattern_match
+action_types:
+  - equity_trade
+params:
+  field: agent_id
+  pattern: "(?i)(^research-|^analyst-|^RA-)"
+violation_code: RESEARCH_ANALYST_CONFLICT
+severity: soft_hold
+rationale_template: >
+  Agent '{agent_id}' appears to be a research analyst. Trade placed on hold
+  under FINRA Rule 2241 — research analysts may have conflicts of interest
+  on covered securities. Route to compliance for conflict-of-interest review.

@@ -1,0 +1,27 @@
+# Source: FINRA Rulebook — Rule 4110, Capital Compliance
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Implements: SEA Rule 15c3-1 (Net Capital Rule); 17 C.F.R. § 240.15c3-1
+# Rule text: Each member shall comply at all times with the applicable net capital
+# requirements of SEC Rule 15c3-1 and shall maintain such net capital as is required.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_4110
+name: FINRA Rule 4110 — Capital Compliance
+regulation_ref: "FINRA Rule 4110; SEA Rule 15c3-1; 17 C.F.R. § 240.15c3-1; SR-FINRA-2008-021"
+description: >
+  Blocks large transactions that would reduce the firm's net capital below
+  the minimum required threshold under SEC Rule 15c3-1 (Net Capital Rule).
+  Implements: FINRA Rule 4110; SEC Net Capital Rule 17 C.F.R. § 240.15c3-1.
+check_type: threshold
+action_types:
+  - wire_transfer
+  - ach_payment
+params:
+  field: amount
+  max_value: 25000000
+violation_code: CAPITAL_COMPLIANCE_RISK
+severity: soft_hold
+rationale_template: >
+  Transaction amount ${amount} may impact net capital compliance under FINRA
+  Rule 4110 and SEC Rule 15c3-1. Transaction held for capital compliance
+  review — verify that post-transaction net capital remains above the
+  minimum required threshold before approving.

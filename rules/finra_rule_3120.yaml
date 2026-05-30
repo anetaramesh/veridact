@@ -1,0 +1,40 @@
+# Source: FINRA Rulebook — Rule 3120, Supervisory Control System
+# https://www.finra.org/rules-guidance/rulebooks/finra-rules/3120
+# Effective: December 1, 2014 (SR-FINRA-2012-028)
+#
+# Rule text (verbatim excerpt):
+#   "Each member shall designate and specifically identify to FINRA one or more
+#   principals who shall establish, maintain, and enforce a system of supervisory
+#   control policies and procedures that: (1) test and verify that the member's
+#   supervisory procedures are reasonably designed to achieve compliance with
+#   applicable securities laws and regulations, and with applicable FINRA rules."
+#
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: finra_rule_3120
+name: FINRA Rule 3120 — Supervisory Control System
+regulation_ref: "FINRA Rule 3120; SR-FINRA-2012-028 eff. December 1, 2014"
+description: >
+  Blocks any action executed by an agent_id that has not been registered as
+  an approved supervisory principal in the firm's supervisory control system.
+  Implements: FINRA Rule 3120 — members must maintain a supervisory control
+  system with designated principals who test and verify supervisory procedures.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - equity_trade
+  - internal_transfer
+  - check_issuance
+params:
+  field: agent_id
+  # Agents with IDs matching this pattern are unregistered/unapproved.
+  # Approved agents should NOT match this pattern.
+  # Update to reflect your firm's agent ID naming convention.
+  pattern: "^(unregistered-|temp-|test-|UNAUTH-)"
+violation_code: SUPERVISORY_CONTROL_VIOLATION
+severity: hard_block
+rationale_template: >
+  Agent '{agent_id}' does not appear in the approved supervisory principal registry.
+  Action blocked under FINRA Rule 3120 — only designated principals may execute
+  this transaction type. Contact the compliance desk to register the agent.

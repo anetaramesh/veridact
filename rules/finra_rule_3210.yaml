@@ -1,0 +1,30 @@
+# Source: FINRA Rulebook — Rule 3210, Accounts at Other Broker-Dealers and Financial Institutions
+# Effective: April 3, 2017 (SR-FINRA-2016-007)
+# Rule text: No person associated with a member in a registered capacity shall open or
+# maintain an account in which securities transactions can be effected at any other member
+# or other financial institution without prior written notice to and approval from the
+# employing member.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_3210
+name: FINRA Rule 3210 — Accounts at Other Broker-Dealers
+regulation_ref: "FINRA Rule 3210; SR-FINRA-2016-007 eff. April 3, 2017"
+description: >
+  Flags transactions to external broker-dealer accounts where the employing
+  member has not documented prior written approval for the associated person
+  to maintain an outside account.
+  Implements: FINRA Rule 3210 — associated persons must obtain prior written
+  approval to maintain accounts at other broker-dealers.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - internal_transfer
+params:
+  field: recipient_id
+  pattern: "(?i)(^EXT-BD-|^OUTSIDE-ACCT-|^OUTSIDE_BROKER-)"
+violation_code: OUTSIDE_ACCOUNT_NOT_APPROVED
+severity: soft_hold
+rationale_template: >
+  Recipient '{recipient_id}' appears to be an external broker-dealer account.
+  Transaction held under FINRA Rule 3210 — verify that prior written approval
+  from the employing member has been obtained and documented before proceeding.

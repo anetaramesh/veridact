@@ -1,0 +1,23 @@
+# Regulation: SEC Regulation SHO 17 C.F.R. § 242.203(b) — locate requirement.
+# A broker-dealer must locate shares before executing a short sale order.
+# AI agents may not autonomously submit short-sell orders without a confirmed locate.
+
+id: reg_sho_locate
+name: Reg SHO Short-Sell Locate Requirement
+regulation_ref: "SEC Reg SHO 17 C.F.R. § 242.203(b)"
+description: >
+  Blocks short-sell orders where no share locate has been confirmed.
+  Implements: SEC Regulation SHO 17 C.F.R. § 242.203(b) locate requirement.
+check_type: pattern_match
+action_types:
+  - trade_order
+  - short_sell
+params:
+  field: locate_confirmed
+  pattern: "(?i)^(false|no|0|missing|none)"
+violation_code: REG_SHO_NO_LOCATE
+severity: hard_block
+rationale_template: >
+  Short-sell order rejected: no share locate confirmed. Regulation SHO
+  17 C.F.R. § 242.203(b) requires a locate before execution. Obtain a
+  locate from a prime broker before retrying.

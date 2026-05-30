@@ -1,0 +1,25 @@
+# Source: FINRA Rulebook — Rule 9551, Failure to File Timely
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: FINRA may impose a temporary cease-and-desist order on any member that
+# fails to file required reports or documents in a timely manner.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_9551
+name: FINRA Rule 9551 — Failure to File Timely (Cease-and-Desist)
+regulation_ref: "FINRA Rule 9551; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Blocks all transactions on accounts subject to a FINRA temporary
+  cease-and-desist order for failure to file required reports.
+  Implements: FINRA Rule 9551 — FINRA may impose temporary cease-and-desist
+  orders for failure to file timely reports.
+check_type: account_status
+action_types:
+  - "*"
+params:
+  field: account_id
+  frozen_accounts: []
+violation_code: CEASE_AND_DESIST_ORDER
+severity: hard_block
+rationale_template: >
+  Account '{account_id}' is subject to a FINRA temporary cease-and-desist order
+  under Rule 9551 for failure to file required reports. All transactions are blocked.
+  Contact the compliance desk to resolve outstanding filing obligations.

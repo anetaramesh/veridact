@@ -27,6 +27,7 @@ from typing import Any
 
 from src.rules.models import RuleDefinition, RuleResult
 from src.engine.rule_engine import evaluate_rules
+from src.finra.provider import LiveDataProvider
 
 logger = logging.getLogger(__name__)
 
@@ -58,15 +59,20 @@ class GovernanceEngine:
         governance_config: Optional dict of AGT configuration passed to
             ``agent_os.GovernanceClient`` (API keys, policy IDs, etc.).
             Must not contain raw secrets — pass via environment variables.
+        data_provider: Optional live FINRA/OFAC data provider.  When supplied,
+            sanctions and account-status checks use real-time API lookups
+            instead of the static stub data in the YAML rule params.
     """
 
     def __init__(
         self,
         rules: list[RuleDefinition],
         governance_config: dict[str, Any] | None = None,
+        data_provider: LiveDataProvider | None = None,
     ) -> None:
         self._rules = rules
         self._governance_config = governance_config or {}
+        self._data_provider = data_provider
         self._agt_client: Any = None
 
         if _AGENT_OS_AVAILABLE:
@@ -109,7 +115,7 @@ class GovernanceEngine:
         Returns:
             Combined list of :class:`~src.rules.models.RuleResult` from all layers.
         """
-        results = evaluate_rules(self._rules, action_type, parameters, context)
+        results = evaluate_rules(self._rules, action_type, parameters, context, self._data_provider)
 
         if not _AGENT_OS_AVAILABLE or self._agt_client is None:
             return results

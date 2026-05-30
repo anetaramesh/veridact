@@ -69,21 +69,33 @@ class ValidateResponse(BaseModel):
     audit_entry_id: str
 
 
-def _derive_outcome(approved: bool, violations: list[ViolationDetail]) -> str:
-    """Map evaluation result to a canonical outcome string.
+def _build_severity_maps(rules: list) -> tuple[set[str], set[str]]:
+    """Build soft_hold and flag code sets from loaded rule definitions."""
+    from src.rules.models import Severity
+    soft_hold: set[str] = set()
+    flag: set[str] = set()
+    for rule in rules:
+        sev = getattr(rule, "severity", None)
+        if sev == Severity.soft_hold:
+            soft_hold.add(rule.violation_code)
+        elif sev == Severity.flag:
+            flag.add(rule.violation_code)
+    return soft_hold, flag
 
-    Without per-rule severity info in RuleResult, infer severity from known
-    violation codes, defaulting to hard_block for unknown codes.
-    """
+
+def _derive_outcome(
+    approved: bool,
+    violations: list[ViolationDetail],
+    soft_hold_codes: set[str],
+    flag_codes: set[str],
+) -> str:
+    """Map evaluation result to a canonical outcome string using live rule severity."""
     if approved:
         return "approved"
     codes = {v.violation_code for v in violations}
-    _soft_hold_codes = {"WIRE_THRESHOLD_EXCEEDED"}
-    _flag_codes: set[str] = set()
-
-    if codes <= _flag_codes:
+    if codes <= flag_codes:
         return "flagged"
-    if codes <= _soft_hold_codes:
+    if codes <= (soft_hold_codes | flag_codes):
         return "soft_hold"
     return "hard_block"
 
@@ -109,12 +121,20 @@ async def validate(req: ValidateRequest, request: Request) -> ValidateResponse:
     request_id = str(uuid.uuid4())
 
     governance = request.app.state.governance
+    rules = request.app.state.rules
+    soft_hold_codes, flag_codes = _build_severity_maps(rules)
+
     results: list[RuleResult] = governance.evaluate(
         req.action_type, req.parameters, req.context, req.agent_id
     )
 
     failures = [r for r in results if not r.passed]
-    approved = len(failures) == 0
+    # flag-severity violations are recorded but do not block approval
+    blocking_failures = [
+        r for r in failures
+        if (r.violation_code or "") not in flag_codes
+    ]
+    approved = len(blocking_failures) == 0
 
     violations = [
         ViolationDetail(
@@ -131,7 +151,7 @@ async def validate(req: ValidateRequest, request: Request) -> ValidateResponse:
         codes = ", ".join(v.violation_code for v in violations)
         rationale = f"Blocked by rule violations: {codes}."
 
-    outcome = _derive_outcome(approved, violations)
+    outcome = _derive_outcome(approved, violations, soft_hold_codes, flag_codes)
     latency_ms = (time.perf_counter() - t0) * 1000
 
     logger.info(

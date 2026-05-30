@@ -1,0 +1,27 @@
+# Source: FINRA Rulebook — Rule 5340, Anti-Intimidation/Coordination
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: No member or associated person shall coordinate, directly or indirectly,
+# the prices of transactions in any security or the terms of orders in any security
+# with another member or associated person.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_5340
+name: FINRA Rule 5340 — Anti-Intimidation / Coordination
+regulation_ref: "FINRA Rule 5340; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Flags transactions where the memo or description field contains language
+  suggesting price coordination, collusion, or intimidation between market participants.
+  Implements: FINRA Rule 5340 — members may not coordinate prices or order
+  terms with other members.
+check_type: pattern_match
+action_types:
+  - equity_trade
+  - wire_transfer
+params:
+  field: memo
+  pattern: '(?i)(coordinat|collu|price.fix|agree.{0,20}price|pre.{0,5}arrang|intimidat)'
+violation_code: ANTI_INTIMIDATION_COORDINATION
+severity: hard_block
+rationale_template: >
+  Transaction memo contains language suggesting price coordination or collusion:
+  '{memo}'. Action blocked under FINRA Rule 5340 — members may not coordinate
+  prices or order terms with other market participants. Contact compliance.

@@ -1,0 +1,40 @@
+# Source: FINRA Rulebook — Rule 3110, Supervision
+# https://www.finra.org/rules-guidance/rulebooks/finra-rules/3110
+# Effective: December 1, 2014 (SR-FINRA-2012-028)
+#
+# Rule text (verbatim excerpt):
+#   "(a) Supervisory System. Each member shall establish and maintain a system
+#   to supervise the activities of each associated person that is reasonably
+#   designed to achieve compliance with applicable securities laws and
+#   regulations, and with applicable FINRA rules. Final responsibility for
+#   proper supervision shall rest with the member."
+#   "(b) Written Supervisory Procedures. Each member shall establish, maintain,
+#   and enforce written procedures to supervise the types of business in which
+#   it engages and the activities of its associated persons that are reasonably
+#   designed to achieve compliance with applicable securities laws and
+#   regulations, and with applicable FINRA rules."
+#
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: finra_rule_3110
+name: FINRA Rule 3110 — Supervision (Large Wire Transfer Threshold)
+regulation_ref: "FINRA Rule 3110(a)(b); BSA 31 U.S.C. § 5318(g); 31 C.F.R. § 1010.410; SR-FINRA-2012-028 eff. December 1, 2014"
+description: >
+  Blocks autonomous wire transfers exceeding $1,000,000 USD without additional
+  human supervisory approval, as required by written supervisory procedures (WSPs).
+  Implements: FINRA Rule 3110(a) (supervisory system); FINRA Rule 3110(b)
+  (written supervisory procedures); Bank Secrecy Act 31 U.S.C. § 5318(g)
+  (SAR obligations); FinCEN Wire Transfer Rule 31 C.F.R. § 1010.410.
+check_type: threshold
+action_types:
+  - wire_transfer
+params:
+  field: amount
+  max_value: 1000000
+violation_code: SUPERVISION_WIRE_THRESHOLD_EXCEEDED
+severity: soft_hold
+rationale_template: >
+  Wire transfer amount ${amount} exceeds the $1,000,000 autonomous-execution
+  limit under FINRA Rule 3110(a) written supervisory procedures.
+  Human supervisory approval required. Submit a manual approval request
+  to the compliance desk before proceeding.

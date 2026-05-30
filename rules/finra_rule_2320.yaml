@@ -1,0 +1,29 @@
+# Source: FINRA Rulebook — Rule 2320, Variable Contracts of an Insurance Company
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: No member shall recommend to any customer the purchase of a variable
+# annuity or variable life insurance contract unless such recommendation is suitable
+# based on the customer's financial situation and needs.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_2320
+name: FINRA Rule 2320 — Variable Contracts Suitability
+regulation_ref: "FINRA Rule 2320; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Blocks variable annuity and variable life insurance transactions where
+  a documented suitability review is absent.
+  Implements: FINRA Rule 2320 — variable contract recommendations require
+  documented suitability based on customer financial situation and needs.
+check_type: required_fields
+action_types:
+  - equity_trade
+params:
+  required:
+    - customer_id
+    - account_id
+    - investment_objective
+    - suitability_assessment_ref
+violation_code: VARIABLE_CONTRACT_SUITABILITY_MISSING
+severity: flag
+rationale_template: >
+  Variable contract transaction is missing required suitability documentation:
+  {missing_fields}. Transaction held under FINRA Rule 2320 — document customer
+  suitability before recommending variable annuity or variable life products.

@@ -1,0 +1,27 @@
+# Source: FINRA Rulebook — Rule 1230, Associated Persons Exempt from Registration
+# Effective: October 1, 2018 (SR-FINRA-2015-017)
+# Rule text: The following associated persons are not required to register with FINRA:
+# persons whose functions are solely clerical or ministerial.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_1230
+name: FINRA Rule 1230 — Exempt Associated Persons
+regulation_ref: "FINRA Rule 1230; SR-FINRA-2015-017 eff. October 1, 2018"
+description: >
+  Flags transactions where an agent classified as clerical or administrative
+  (exempt from registration) is executing a securities transaction.
+  Implements: FINRA Rule 1230 — exempt persons (clerical/ministerial) may
+  not perform activities requiring registration.
+check_type: pattern_match
+action_types:
+  - equity_trade
+  - wire_transfer
+  - loan_decision
+params:
+  field: agent_id
+  pattern: '(?i)(^CLERK-|^ADMIN-|^SUPPORT-|^OPS-EXEMPT-)'
+violation_code: EXEMPT_PERSON_RESTRICTED_ACTIVITY
+severity: hard_block
+rationale_template: >
+  Agent '{agent_id}' is classified as an exempt (clerical/administrative) person
+  under FINRA Rule 1230 and may not execute securities transactions.
+  Action blocked — assign to a registered representative.

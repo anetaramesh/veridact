@@ -1,0 +1,30 @@
+# Source: FINRA Rulebook — Rule 3130, Annual Certification of Compliance and Supervisory Processes
+# Effective: December 1, 2014 (SR-FINRA-2012-028)
+# Rule text: Each member shall designate and specifically identify to FINRA one or more
+# principals who shall, at least annually, meet with the member's chief executive officer
+# to discuss the adequacy of the member's compliance policies and supervisory procedures.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_3130
+name: FINRA Rule 3130 — Annual Compliance Certification
+regulation_ref: "FINRA Rule 3130; SR-FINRA-2012-028 eff. December 1, 2014"
+description: >
+  Blocks high-value transactions executed after the annual compliance certification
+  deadline has passed, until the certification is renewed.
+  Implements: FINRA Rule 3130 — members must annually certify the adequacy
+  of their compliance policies and supervisory procedures.
+check_type: required_fields
+action_types:
+  - wire_transfer
+  - equity_trade
+params:
+  required:
+    - customer_id
+    - account_id
+    - compliance_certification_year
+violation_code: COMPLIANCE_CERTIFICATION_MISSING
+severity: flag
+rationale_template: >
+  Required annual compliance certification field is missing: {missing_fields}.
+  Transaction placed on hold under FINRA Rule 3130 — verify that the annual
+  compliance certification has been completed and the certification year is
+  recorded before executing high-value transactions.

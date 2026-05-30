@@ -1,0 +1,30 @@
+# Source: FINRA Rulebook — Rule 4517, Maintenance and Transmission of Customer Account Records
+# Effective: November 12, 2012 (SR-FINRA-2012-013)
+# Rule text: Each member shall maintain, and transmit upon request to FINRA or a
+# successor member, a copy of each customer account record required to be maintained
+# by FINRA rules and the applicable Exchange Act rules.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_4517
+name: FINRA Rule 4517 — Customer Account Record Transmission
+regulation_ref: "FINRA Rule 4517; SR-FINRA-2012-013 eff. November 12, 2012"
+description: >
+  Flags account transfers and record transmission requests that are missing
+  the required customer account record fields needed for FINRA transmission.
+  Implements: FINRA Rule 4517 — members must maintain and be able to transmit
+  complete customer account records to FINRA on request.
+check_type: required_fields
+action_types:
+  - account_open
+  - internal_transfer
+params:
+  required:
+    - customer_id
+    - account_id
+    - date_of_birth
+    - tax_id_ref
+violation_code: ACCOUNT_RECORD_INCOMPLETE
+severity: flag
+rationale_template: >
+  Account record is incomplete for FINRA Rule 4517 transmission requirements.
+  Missing field(s): {missing_fields}. Obtain and record all required customer
+  account information before processing this account action.

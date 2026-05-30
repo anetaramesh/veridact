@@ -1,0 +1,25 @@
+# Source: FINRA Rulebook — Rule 0140, Applicability to Exempted Securities and Exempted Transactions
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: Members must comply with FINRA rules with respect to transactions in exempted
+# securities, unless a specific exemption is provided.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_0140
+name: FINRA Rule 0140 — Applicability to Exempted Securities
+regulation_ref: "FINRA Rule 0140; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Flags transactions in exempted securities (e.g. US government securities, municipal bonds)
+  to ensure FINRA rule compliance is applied unless a specific exemption is documented.
+  Implements: FINRA Rule 0140.
+check_type: pattern_match
+action_types:
+  - equity_trade
+  - wire_transfer
+params:
+  field: security_type
+  pattern: "(?i)(exempt|government|municipal|muni|treasury|agency)"
+violation_code: EXEMPTED_SECURITY_REVIEW
+severity: flag
+rationale_template: >
+  Transaction involves a potentially exempted security type '{security_type}'.
+  Flagged for compliance review under FINRA Rule 0140 to confirm applicable
+  exemptions are documented before processing.

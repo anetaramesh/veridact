@@ -1,0 +1,27 @@
+# Source: FINRA Rulebook — Rule 3260, Discretionary Accounts
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: No member or registered representative shall exercise any discretionary
+# power in a customer's account unless such customer has given prior written authorization.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_3260
+name: FINRA Rule 3260 — Discretionary Accounts
+regulation_ref: "FINRA Rule 3260; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Blocks autonomous discretionary trades executed without documented prior
+  written authorization from the customer.
+  Implements: FINRA Rule 3260 — no member shall exercise discretionary power
+  in a customer's account without prior written customer authorization.
+check_type: required_fields
+action_types:
+  - equity_trade
+params:
+  required:
+    - customer_id
+    - account_id
+    - discretionary_authorization_ref
+violation_code: DISCRETIONARY_AUTHORIZATION_MISSING
+severity: flag
+rationale_template: >
+  Discretionary trade blocked under FINRA Rule 3260 — required field(s) missing:
+  {missing_fields}. Prior written customer authorization (discretionary_authorization_ref)
+  must be on file before executing discretionary trades.

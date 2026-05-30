@@ -1,0 +1,32 @@
+# Source: FINRA Rulebook — Rule 3280, Private Securities Transactions
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: No person associated with a member shall participate in any manner in a
+# private securities transaction except in accordance with the requirements of this Rule.
+# Prior to participating, the associated person must provide written notice to the member
+# describing the proposed transaction and the person's proposed role.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_3280
+name: FINRA Rule 3280 — Private Securities Transactions
+regulation_ref: "FINRA Rule 3280; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Blocks private securities transactions (Reg D, private placements) executed
+  without a documented written notice reference number confirming the employing
+  member has been notified and approved the transaction.
+  Implements: FINRA Rule 3280 — associated persons must provide prior written
+  notice before participating in private securities transactions.
+check_type: required_fields
+action_types:
+  - equity_trade
+  - wire_transfer
+params:
+  required:
+    - customer_id
+    - account_id
+    - private_transaction_notice_ref
+violation_code: PRIVATE_SECURITIES_NOTICE_MISSING
+severity: flag
+rationale_template: >
+  Private securities transaction blocked under FINRA Rule 3280 — required
+  field(s) missing: {missing_fields}. Written notice to and approval from
+  the employing member (private_transaction_notice_ref) is required before
+  participating in any private securities transaction.

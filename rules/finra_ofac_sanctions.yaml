@@ -22,13 +22,10 @@ action_types:
   - check_issuance
 params:
   field: recipient_id
-  # STUB LIST — replace with live OFAC SDN API feed before production deployment.
-  sanctions_list:
-    - SDN-001
-    - SDN-002
-    - SDN-003
-    - BLOCKED-ENTITY-A
-    - BLOCKED-ENTITY-B
+  # sanctions_list is intentionally empty — live OFAC SDN screening is performed
+  # via FinraDataProvider.is_sanctioned() when a LiveDataProvider is wired into
+  # AGTAdapter.  Set FINRA_CLIENT_ID and FINRA_CLIENT_SECRET to enable.
+  sanctions_list: []
 violation_code: OFAC_SANCTIONS_MATCH
 severity: hard_block
 rationale_template: >

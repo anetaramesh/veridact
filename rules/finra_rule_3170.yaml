@@ -1,0 +1,27 @@
+# Source: FINRA Rulebook — Rule 3170, Tape Recording of Registered Persons
+# Effective: January 1, 1990 (amended SR-FINRA-2014-005)
+# Rule text: Members that employ registered persons previously employed at certain
+# disciplined firms must record all telephone conversations of such persons with
+# customers and must maintain such recordings for three years.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_3170
+name: FINRA Rule 3170 — Tape Recording of Registered Persons
+regulation_ref: "FINRA Rule 3170; SR-FINRA-2014-005 eff. amended 2014"
+description: >
+  Flags high-value transactions executed by agents previously employed at
+  FINRA-disciplined firms, requiring enhanced supervision and call recording.
+  Implements: FINRA Rule 3170 — members employing persons from disciplined
+  firms must maintain tape recordings of their customer communications.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - equity_trade
+params:
+  field: agent_id
+  pattern: '(?i)(^TAPE-REQUIRED-|^DISCIPLINED-FIRM-)'
+violation_code: TAPE_RECORDING_REQUIRED
+severity: flag
+rationale_template: >
+  Agent '{agent_id}' is subject to tape-recording requirements under FINRA Rule 3170.
+  Flagged for supervisory review — ensure all customer communications are being
+  recorded and retained as required before processing this transaction.

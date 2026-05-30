@@ -1,0 +1,25 @@
+# Source: FINRA Rulebook — Rule 2370, Securities Futures Products
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: Members transacting in security futures products must comply with
+# applicable margin requirements and ensure customer suitability.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_2370
+name: FINRA Rule 2370 — Securities Futures Products
+regulation_ref: "FINRA Rule 2370; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Blocks securities futures transactions where the initial margin deposit
+  does not meet the 20% minimum requirement for single stock futures.
+  Implements: FINRA Rule 2370 — members must comply with margin requirements
+  for securities futures products.
+check_type: threshold
+action_types:
+  - equity_trade
+params:
+  field: futures_margin_pct
+  max_value: 20.0
+violation_code: FUTURES_MARGIN_INSUFFICIENT
+severity: hard_block
+rationale_template: >
+  Securities futures margin of {futures_margin_pct}% is below the 20% minimum
+  requirement. Trade blocked under FINRA Rule 2370 — obtain sufficient margin
+  before executing securities futures transactions.

@@ -1,0 +1,28 @@
+# Source: FINRA Rulebook — Rule 2214, Requirements for the Use of Investment Analysis Tools
+# Effective: April 16, 2012 (SR-FINRA-2010-060)
+# Rule text: Members that use investment analysis tools must clearly disclose to customers
+# the criteria and methodology used by the tool and the limitations and risks of using it.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_2214
+name: FINRA Rule 2214 — Investment Analysis Tools
+regulation_ref: "FINRA Rule 2214; SR-FINRA-2010-060 eff. April 16, 2012"
+description: >
+  Flags AI-generated investment recommendations that lack a required methodology
+  disclosure reference, ensuring customers are informed of tool limitations.
+  Implements: FINRA Rule 2214 — members using investment analysis tools must
+  disclose criteria, methodology, limitations, and risks.
+check_type: required_fields
+action_types:
+  - equity_trade
+  - loan_decision
+params:
+  required:
+    - customer_id
+    - account_id
+    - analysis_tool_disclosure_ref
+violation_code: ANALYSIS_TOOL_DISCLOSURE_MISSING
+severity: flag
+rationale_template: >
+  AI-generated recommendation is missing a required disclosure reference:
+  {missing_fields}. Flagged under FINRA Rule 2214 — customers must be informed
+  of the methodology, limitations, and risks of investment analysis tools.

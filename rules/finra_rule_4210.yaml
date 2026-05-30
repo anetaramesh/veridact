@@ -1,0 +1,28 @@
+# Source: FINRA Rulebook — Rule 4210, Margin Requirements
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Implements: Regulation T (12 C.F.R. § 220); SEA § 7
+# Rule text: Each member shall comply with the margin requirements set forth in this Rule.
+# No member shall effect securities transactions or carry margin accounts without
+# obtaining margin from customers as required by this Rule.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_4210
+name: FINRA Rule 4210 — Margin Requirements
+regulation_ref: "FINRA Rule 4210; Regulation T 12 C.F.R. § 220; SEA § 7; SR-FINRA-2008-021"
+description: >
+  Blocks margin trades where the initial margin deposit is below the
+  required 50% Reg T initial margin requirement for equity securities.
+  Implements: FINRA Rule 4210; Regulation T (12 C.F.R. § 220) — members
+  must obtain required margin before effecting margin transactions.
+check_type: threshold
+action_types:
+  - equity_trade
+params:
+  field: margin_rate_pct
+  max_value: 50.0
+violation_code: MARGIN_REQUIREMENT_INSUFFICIENT
+severity: hard_block
+rationale_template: >
+  Margin rate of {margin_rate_pct}% is below the 50% Reg T initial margin
+  requirement for equity securities. Trade blocked under FINRA Rule 4210
+  and Regulation T. Obtain the required margin deposit before executing
+  this trade.

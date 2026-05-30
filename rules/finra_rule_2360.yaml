@@ -1,0 +1,27 @@
+# Source: FINRA Rulebook — Rule 2360, Options
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: Members engaging in options transactions must comply with applicable
+# options rules, including suitability requirements, account approval, and margin.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_2360
+name: FINRA Rule 2360 — Options Transactions
+regulation_ref: "FINRA Rule 2360; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Blocks options transactions on accounts that have not received documented
+  options trading approval, as required for each options tier level.
+  Implements: FINRA Rule 2360 — accounts must be approved for options
+  trading before options transactions may be executed.
+check_type: required_fields
+action_types:
+  - equity_trade
+params:
+  required:
+    - customer_id
+    - account_id
+    - options_approval_level
+violation_code: OPTIONS_ACCOUNT_NOT_APPROVED
+severity: flag
+rationale_template: >
+  Options transaction blocked under FINRA Rule 2360 — required field(s)
+  missing: {missing_fields}. The account must have documented options
+  trading approval (options_approval_level) before executing options transactions.

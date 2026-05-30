@@ -1,0 +1,24 @@
+# Regulation: Equal Credit Opportunity Act (ECOA) 15 U.S.C. § 1691; Regulation B (12 C.F.R. Part 202);
+# Community Reinvestment Act (CRA) 12 U.S.C. § 2901; Fair Housing Act 42 U.S.C. § 3605.
+# Geographic concentration in a single census tract or ZIP code may indicate
+# redlining risk or CRA compliance gaps requiring supervisory review.
+
+id: geo_concentration
+name: Geographic Loan Concentration Check
+regulation_ref: "ECOA 15 U.S.C. § 1691; Reg B 12 C.F.R. Part 202; CRA 12 U.S.C. § 2901"
+description: >
+  Escalates for review when a loan decision context indicates geographic
+  concentration that may raise fair-lending or CRA compliance concerns.
+  Implements: ECOA; Regulation B; Community Reinvestment Act.
+check_type: pattern_match
+action_types:
+  - loan_decision
+  - credit_approval
+params:
+  field: geographic_flag
+  pattern: "(?i)(concentrated|redline_risk|single_tract|cra_gap)"
+violation_code: GEOGRAPHIC_CONCENTRATION
+severity: soft_hold
+rationale_template: >
+  Loan decision flagged for geographic concentration review under ECOA and CRA.
+  AI agent cannot autonomously proceed — human fair-lending review required.

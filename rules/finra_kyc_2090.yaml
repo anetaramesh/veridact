@@ -1,0 +1,41 @@
+# Source: FINRA Rulebook API (finraRulebookMock) — fetched 2026-05-30
+# ruleNumber: 2090
+# effectiveStartDate: 2012-07-09
+# rulebookHierarchy: 2000. DUTIES AND CONFLICTS > 2090. Know Your Customer
+#
+# Rule text (verbatim from API):
+#   "Every member shall use reasonable diligence, in regard to the opening and
+#   maintenance of every account, to know (and retain) the essential facts
+#   concerning every customer and concerning the authority of each person acting
+#   on behalf of such customer."
+#
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: finra_kyc_2090
+name: FINRA Rule 2090 — Know Your Customer (KYC)
+regulation_ref: "FINRA Rule 2090 (eff. 2012-07-09); SR-FINRA-2010-039; SR-FINRA-2011-016"
+description: >
+  Blocks any action where required customer-identification fields are absent.
+  Every member must use reasonable diligence to know (and retain) the essential
+  facts concerning every customer before executing transactions on their behalf.
+  Implements: FINRA Rule 2090 (Know Your Customer).
+  API source: finraRulebookMock / ruleNumber 2090.
+check_type: required_fields
+action_types:
+  - wire_transfer
+  - ach_payment
+  - internal_transfer
+  - check_issuance
+  - equity_trade
+  - loan_decision
+params:
+  # All fields listed here must be present and non-empty in the request
+  required:
+    - customer_id
+    - account_id
+violation_code: KYC_MISSING_FIELDS
+severity: hard_block
+rationale_template: >
+  Action blocked under FINRA Rule 2090 (Know Your Customer).
+  The following required customer identification fields are missing or empty: {missing_fields}.
+  Essential facts concerning the customer must be known before executing this transaction.

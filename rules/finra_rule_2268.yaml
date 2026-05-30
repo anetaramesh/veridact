@@ -1,0 +1,29 @@
+# Source: FINRA Rulebook — Rule 2268, Requirements When Using Predispute Arbitration Agreements
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: Members using predispute arbitration agreements must include specific
+# disclosures and may not limit customers' rights beyond what FINRA rules permit.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_2268
+name: FINRA Rule 2268 — Predispute Arbitration Agreements
+regulation_ref: "FINRA Rule 2268; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Flags account opening actions where the required arbitration agreement
+  disclosure reference is absent, ensuring FINRA-compliant disclosures
+  are on file before account activation.
+  Implements: FINRA Rule 2268 — predispute arbitration agreements must
+  include required disclosures and may not limit customer rights.
+check_type: required_fields
+action_types:
+  - account_open
+params:
+  required:
+    - customer_id
+    - account_id
+    - arbitration_agreement_ref
+violation_code: ARBITRATION_DISCLOSURE_MISSING
+severity: flag
+rationale_template: >
+  Account opening is missing the required arbitration agreement disclosure
+  reference: {missing_fields}. Flagged under FINRA Rule 2268 — a FINRA-compliant
+  predispute arbitration agreement disclosure must be on file before activating
+  the account.

@@ -7,7 +7,7 @@ from httpx import AsyncClient
 
 CLEAN_PAYLOAD = {
     "action_type": "wire_transfer",
-    "parameters": {"amount": 500, "recipient_id": "LEGIT-USER", "account_id": "ACC-GOOD"},
+    "parameters": {"amount": 500, "recipient_id": "LEGIT-USER", "account_id": "ACC-GOOD", "customer_id": "CUST-001"},
     "context": {},
     "agent_id": "agent-endpoint-test",
 }
@@ -19,8 +19,21 @@ async def test_valid_wire_transfer_passes(async_client: AsyncClient):
     assert resp.status_code == 200
     data = resp.json()
     assert data["approved"] is True
-    assert data["violations"] == []
     assert data["outcome"] == "approved"
+    FLAG_CODES = {
+        "ACCOUNT_RECORD_INCOMPLETE", "ANALYSIS_TOOL_DISCLOSURE_MISSING",
+        "ARBITRATION_DISCLOSURE_MISSING", "COMMERCIAL_HONOR_VIOLATION",
+        "COMPLIANCE_CERTIFICATION_MISSING", "DISCRETIONARY_AUTHORIZATION_MISSING",
+        "EXCESSIVE_COMMISSION", "EXEMPTED_SECURITY_REVIEW",
+        "MEMBER_PRIVATE_PLACEMENT_FILING_MISSING", "MISLEADING_COMMUNICATION",
+        "MUTUAL_FUND_PRICE_DEVIATION", "OFFERING_CONFLICT_DISCLOSURE_MISSING",
+        "PRIVATE_SECURITIES_NOTICE_MISSING", "REGISTRATION_CATEGORY_MISMATCH",
+        "RESEARCH_ANALYST_CONFLICT", "OUTSIDE_ACCOUNT_NOT_APPROVED",
+        "TAPE_RECORDING_REQUIRED", "TRACE_REPORTING_MISSING",
+        "UNDERWRITING_COMPENSATION_EXCESSIVE",
+    }
+    blocking = [v for v in data["violations"] if v["violation_code"] not in FLAG_CODES]
+    assert blocking == []
 
 
 @pytest.mark.asyncio

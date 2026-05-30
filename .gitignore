@@ -18,3 +18,4 @@ venv/
 # Dashboard
 dashboard/node_modules/
 dashboard/dist/
+active_rules.json

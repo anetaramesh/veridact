@@ -1,0 +1,27 @@
+# Source: FINRA Rulebook — Rule 2121, Fair Prices and Commissions
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: A member shall buy or sell securities for a customer account only at a fair
+# price. In any transaction with a customer, the commission or service charge shall be
+# reasonable and not unfair or excessive under the circumstances.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_2121
+name: FINRA Rule 2121 — Fair Prices and Commissions
+regulation_ref: "FINRA Rule 2121; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Flags trades where the commission rate exceeds 5% of the transaction value,
+  the industry benchmark for excessive commissions under FINRA's 5% policy.
+  Implements: FINRA Rule 2121 — commissions must be reasonable and not unfair
+  or excessive under the circumstances.
+check_type: threshold
+action_types:
+  - equity_trade
+params:
+  field: commission_rate_pct
+  max_value: 5.0
+violation_code: EXCESSIVE_COMMISSION
+severity: flag
+rationale_template: >
+  Commission rate of {commission_rate_pct}% exceeds the 5% FINRA guideline.
+  Flagged for supervisory review under FINRA Rule 2121 — commissions must be
+  fair and not excessive. Obtain written customer consent or reduce commission
+  before executing.

@@ -2,31 +2,46 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Any, Callable
+from typing import Any, Callable, TYPE_CHECKING
 
 from src.rules.models import CheckType, RuleDefinition, RuleResult
+
+if TYPE_CHECKING:
+    from src.finra.provider import LiveDataProvider
 
 logger = logging.getLogger(__name__)
 
 
-def _check_sanctions_list(rule: RuleDefinition, parameters: dict[str, Any]) -> RuleResult:
+def _check_sanctions_list(
+    rule: RuleDefinition,
+    parameters: dict[str, Any],
+    data_provider: "LiveDataProvider | None" = None,
+) -> RuleResult:
     """Evaluate a sanctions-list rule.
 
-    Blocks the request if the value of ``params.field`` appears in
-    ``params.sanctions_list``.
+    When a *data_provider* is supplied, the OFAC SDN check is performed via
+    the live FINRA/OFAC API rather than the static ``sanctions_list`` in the
+    rule's YAML params.  The static list is used as a fallback when no
+    provider is configured.
 
     Args:
-        rule: The rule definition providing ``field`` and ``sanctions_list`` params.
+        rule: The rule definition providing ``field`` and optional ``sanctions_list`` params.
         parameters: Merged request parameters and context.
+        data_provider: Optional live data provider for real-time OFAC screening.
 
     Returns:
         :class:`~src.rules.models.RuleResult` indicating pass or fail.
     """
-    sanctions: list[str] = rule.params.get("sanctions_list", [])
     field: str = rule.params.get("field", "recipient_id")
     value: str = str(parameters.get(field, ""))
 
-    if value in sanctions:
+    if data_provider is not None:
+        matched = data_provider.is_sanctioned(value)
+    else:
+        sanctions: list[str] = rule.params.get("sanctions_list", [])
+        matched = value in sanctions
+
+    if matched:
         logger.warning("Sanctions match: rule=%s field=%s value=%s", rule.id, field, value)
         return RuleResult(
             rule_id=rule.id,
@@ -41,7 +56,11 @@ def _check_sanctions_list(rule: RuleDefinition, parameters: dict[str, Any]) -> R
     )
 
 
-def _check_threshold(rule: RuleDefinition, parameters: dict[str, Any]) -> RuleResult:
+def _check_threshold(
+    rule: RuleDefinition,
+    parameters: dict[str, Any],
+    data_provider: "LiveDataProvider | None" = None,
+) -> RuleResult:
     """Evaluate a numeric threshold rule.
 
     Blocks the request if the numeric value of ``params.field`` strictly
@@ -55,7 +74,11 @@ def _check_threshold(rule: RuleDefinition, parameters: dict[str, Any]) -> RuleRe
         :class:`~src.rules.models.RuleResult` indicating pass or fail.
     """
     field: str = rule.params.get("field", "amount")
-    max_value: float = rule.params.get("max_value", 0)
+    # Use live threshold from provider if available; fall back to YAML param
+    if data_provider is not None:
+        max_value: float = data_provider.get_wire_threshold()
+    else:
+        max_value = rule.params.get("max_value", 0)
     raw = parameters.get(field, 0)
 
     try:
@@ -78,24 +101,35 @@ def _check_threshold(rule: RuleDefinition, parameters: dict[str, Any]) -> RuleRe
     )
 
 
-def _check_account_status(rule: RuleDefinition, parameters: dict[str, Any]) -> RuleResult:
+def _check_account_status(
+    rule: RuleDefinition,
+    parameters: dict[str, Any],
+    data_provider: "LiveDataProvider | None" = None,
+) -> RuleResult:
     """Evaluate an account-freeze rule.
 
-    Blocks the request if the value of ``params.field`` appears in the
-    ``params.frozen_accounts`` list.
+    When a *data_provider* is supplied, the account restriction check is
+    performed via a live FINRA BrokerCheck lookup rather than the static
+    ``frozen_accounts`` list in the rule's YAML params.
 
     Args:
-        rule: The rule definition providing ``field`` and ``frozen_accounts`` params.
+        rule: The rule definition providing ``field`` and optional ``frozen_accounts`` params.
         parameters: Merged request parameters and context.
+        data_provider: Optional live data provider for real-time BrokerCheck lookup.
 
     Returns:
         :class:`~src.rules.models.RuleResult` indicating pass or fail.
     """
-    frozen_accounts: list[str] = rule.params.get("frozen_accounts", [])
     field: str = rule.params.get("field", "account_id")
     value: str = str(parameters.get(field, ""))
 
-    if value in frozen_accounts:
+    if data_provider is not None:
+        is_frozen = data_provider.is_account_restricted(value)
+    else:
+        frozen_accounts: list[str] = rule.params.get("frozen_accounts", [])
+        is_frozen = value in frozen_accounts
+
+    if is_frozen:
         logger.warning("Frozen account: rule=%s field=%s value=%s", rule.id, field, value)
         return RuleResult(
             rule_id=rule.id,
@@ -110,7 +144,11 @@ def _check_account_status(rule: RuleDefinition, parameters: dict[str, Any]) -> R
     )
 
 
-def _check_pattern_match(rule: RuleDefinition, parameters: dict[str, Any]) -> RuleResult:
+def _check_pattern_match(
+    rule: RuleDefinition,
+    parameters: dict[str, Any],
+    data_provider: "LiveDataProvider | None" = None,
+) -> RuleResult:
     """Evaluate a regex pattern-match rule.
 
     Blocks the request if the value of ``params.field`` matches the
@@ -148,12 +186,50 @@ def _check_pattern_match(rule: RuleDefinition, parameters: dict[str, Any]) -> Ru
     )
 
 
+def _check_required_fields(
+    rule: RuleDefinition,
+    parameters: dict[str, Any],
+    data_provider: "LiveDataProvider | None" = None,
+) -> RuleResult:
+    """Evaluate a required-fields rule (FINRA Rule 2090 KYC).
+
+    Blocks the request if any field listed in ``params.required`` is absent
+    or empty in the merged parameters.
+
+    Args:
+        rule: The rule definition providing a ``required`` list of field names.
+        parameters: Merged request parameters and context.
+
+    Returns:
+        :class:`~src.rules.models.RuleResult` indicating pass or fail.
+    """
+    required: list[str] = rule.params.get("required", [])
+    missing = [f for f in required if not str(parameters.get(f, "")).strip()]
+
+    if missing:
+        logger.warning(
+            "KYC missing fields: rule=%s missing=%s", rule.id, missing
+        )
+        return RuleResult(
+            rule_id=rule.id,
+            passed=False,
+            violation_code=rule.violation_code,
+            rationale=f"Required KYC fields missing or empty: {', '.join(missing)}.",
+        )
+    return RuleResult(
+        rule_id=rule.id,
+        passed=True,
+        rationale=f"All required KYC fields present: {', '.join(required)}.",
+    )
+
+
 # Registry mapping each CheckType to its evaluator function.
-_CHECKERS: dict[CheckType, Callable[[RuleDefinition, dict[str, Any]], RuleResult]] = {
+_CHECKERS: dict[CheckType, Callable[..., RuleResult]] = {
     CheckType.sanctions_list: _check_sanctions_list,
     CheckType.threshold: _check_threshold,
     CheckType.account_status: _check_account_status,
     CheckType.pattern_match: _check_pattern_match,
+    CheckType.required_fields: _check_required_fields,
 }
 
 
@@ -162,26 +238,30 @@ def evaluate_rules(
     action_type: str,
     parameters: dict[str, Any],
     context: dict[str, Any],
+    data_provider: "LiveDataProvider | None" = None,
 ) -> list[RuleResult]:
     """Run every rule against the supplied request and return one result per rule.
 
-    Context fields are available as fallback values; ``parameters`` fields take
-    precedence over identically-named ``context`` fields.
+    When *data_provider* is supplied, ``sanctions_list``, ``account_status``,
+    and ``threshold`` checks are resolved via live FINRA/OFAC API calls instead
+    of the static stub data in the rule's YAML params.
 
     Args:
         rules: Ordered list of rules to evaluate.
         action_type: The action the agent is attempting (e.g. ``"wire_transfer"``).
         parameters: Agent-supplied parameters for the action.
         context: Additional ambient context (account metadata, session info, etc.).
+        data_provider: Optional live FINRA/OFAC data provider.
 
     Returns:
         List of :class:`~src.rules.models.RuleResult`, one per rule, in the same order.
     """
-    # Parameters override context for field lookups
     merged: dict[str, Any] = {**context, **parameters}
     results: list[RuleResult] = []
 
     for rule in rules:
+        if "*" not in rule.action_types and action_type not in rule.action_types:
+            continue
         checker = _CHECKERS.get(rule.check_type)
         if checker is None:
             logger.error("Unknown check_type '%s' in rule '%s'; skipping.", rule.check_type, rule.id)
@@ -193,6 +273,6 @@ def evaluate_rules(
                 )
             )
         else:
-            results.append(checker(rule, merged))
+            results.append(checker(rule, merged, data_provider))
 
     return results

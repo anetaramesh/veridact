@@ -1,0 +1,27 @@
+# Source: FINRA Rulebook — Rule 4120, Regulatory Halt
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: FINRA may halt trading in any security for which it is the designated
+# examining authority when it determines that a halt is necessary to protect investors
+# or the public interest.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_4120
+name: FINRA Rule 4120 — Regulatory Trading Halt
+regulation_ref: "FINRA Rule 4120; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Blocks trades in securities whose ticker is flagged as subject to an active
+  FINRA regulatory trading halt.
+  Implements: FINRA Rule 4120 — FINRA may halt trading to protect investors;
+  members must not execute trades in halted securities.
+check_type: pattern_match
+action_types:
+  - equity_trade
+params:
+  field: ticker
+  pattern: '(?i)(^HALT-|^SUSPENDED-TICKER-)'
+violation_code: REGULATORY_HALT_ACTIVE
+severity: hard_block
+rationale_template: >
+  Security '{ticker}' is flagged as subject to an active regulatory trading halt.
+  Trade blocked under FINRA Rule 4120 — members may not execute transactions
+  in securities subject to a FINRA regulatory halt. Check FINRA halt status
+  before retrying.

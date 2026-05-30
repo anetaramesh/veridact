@@ -1,0 +1,28 @@
+# Source: FINRA Rulebook — Rule 2310, Direct Participation Programs
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: No member shall recommend to any customer participation in a direct
+# participation program (DPP) unless the member has reasonable grounds for believing
+# the transaction is suitable for such customer.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_2310
+name: FINRA Rule 2310 — Direct Participation Programs (Suitability)
+regulation_ref: "FINRA Rule 2310; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Blocks direct participation program (DPP) transactions where a suitability
+  assessment reference is not documented, preventing unsuitable DPP sales.
+  Implements: FINRA Rule 2310 — DPP recommendations require documented
+  reasonable grounds for suitability.
+check_type: required_fields
+action_types:
+  - equity_trade
+params:
+  required:
+    - customer_id
+    - account_id
+    - suitability_assessment_ref
+violation_code: DPP_SUITABILITY_MISSING
+severity: flag
+rationale_template: >
+  Direct participation program transaction is missing a suitability assessment
+  reference: {missing_fields}. Transaction held under FINRA Rule 2310 — document
+  reasonable grounds for suitability before recommending DPP participation.

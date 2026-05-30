@@ -1,0 +1,27 @@
+# Source: FINRA Rulebook — Rule 2242, Debt Research Analysts and Research Reports
+# Effective: February 22, 2016 (SR-FINRA-2014-026)
+# Rule text: Members that publish debt research reports must establish, maintain, and
+# enforce written policies and procedures to identify and manage conflicts of interest.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_2242
+name: FINRA Rule 2242 — Debt Research Analysts
+regulation_ref: "FINRA Rule 2242; SR-FINRA-2014-026 eff. February 22, 2016"
+description: >
+  Blocks fixed income trades by agents identified as debt research analysts
+  on securities they cover, preventing analyst conflicts of interest.
+  Implements: FINRA Rule 2242 — conflicts between debt research analysts and
+  trading activities must be managed through written procedures.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - internal_transfer
+params:
+  field: agent_id
+  pattern: '(?i)(^DEBT-ANALYST-|^FIXED-INCOME-RA-|^FI-RESEARCH-)'
+violation_code: DEBT_RESEARCH_ANALYST_CONFLICT
+severity: soft_hold
+rationale_template: >
+  Agent '{agent_id}' appears to be a debt research analyst. Fixed income
+  transaction held under FINRA Rule 2242 — debt research analysts may have
+  conflicts of interest. Route to compliance for conflict-of-interest review.

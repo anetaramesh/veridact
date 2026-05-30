@@ -9,6 +9,7 @@ from src.engine.models import EvaluationResult, PolicyRule
 from src.engine.rule_loader import load_policy_rules
 from src.engine.rule_engine import evaluate_rules
 from src.rules.models import RuleDefinition, CheckType
+from src.finra.provider import LiveDataProvider
 
 logger = logging.getLogger(__name__)
 
@@ -46,19 +47,28 @@ class AGTAdapter:
 
     Args:
         rules_dir: Path to the directory containing ``*.yaml`` rule pack files.
+        data_provider: Optional live FINRA/OFAC data provider.  When supplied,
+            ``sanctions_list``, ``account_status``, and ``threshold`` checks use
+            real-time API lookups instead of the static YAML stub data.
 
     Raises:
         FileNotFoundError: If *rules_dir* does not exist.
         pydantic.ValidationError: If any YAML file contains an invalid schema.
     """
 
-    def __init__(self, rules_dir: str | Path) -> None:
+    def __init__(
+        self,
+        rules_dir: str | Path,
+        data_provider: LiveDataProvider | None = None,
+    ) -> None:
         self._rules: list[PolicyRule] = load_policy_rules(rules_dir)
         self._agt_engine = _AGTPolicyEngine() if _AGT_AVAILABLE else None
+        self._data_provider = data_provider
         logger.info(
-            "AGTAdapter initialised with %d rules (agent-os=%s).",
+            "AGTAdapter initialised with %d rules (agent-os=%s, live_data=%s).",
             len(self._rules),
             _AGT_AVAILABLE,
+            data_provider is not None,
         )
 
     # ------------------------------------------------------------------
@@ -127,7 +137,7 @@ class AGTAdapter:
         if self._agt_engine is not None:
             return self._evaluate_via_agt(applicable, action_type, parameters, context, agent_id)
 
-        return self._evaluate_via_rules(applicable, action_type, parameters, context)
+        return self._evaluate_via_rules(applicable, action_type, parameters, context, self._data_provider)
 
     def _applicable_rules(self, action_type: str) -> list[PolicyRule]:
         """Return rules whose ``action_types`` include *action_type* or ``"*"``."""
@@ -170,8 +180,13 @@ class AGTAdapter:
         action_type: str,
         parameters: dict[str, Any],
         context: dict[str, Any],
+        data_provider: LiveDataProvider | None = None,
     ) -> EvaluationResult:
         """Run Veridact's built-in rule engine (rule-only fallback)."""
+        from src.rules.models import Severity as _Severity
+        # Build a flag-code set from PolicyRule severity so flag violations don't block
+        flag_codes = {r.violation_code for r in rules if r.severity == _Severity.flag}
+
         # Convert PolicyRule → RuleDefinition for the existing engine
         base_rules: list[RuleDefinition] = [
             RuleDefinition(
@@ -179,16 +194,19 @@ class AGTAdapter:
                 name=r.name,
                 description=r.description,
                 check_type=r.check_type,
+                action_types=r.action_types,
                 params=r.params,
                 violation_code=r.violation_code,
+                severity=r.severity,
             )
             for r in rules
         ]
 
-        rule_results = evaluate_rules(base_rules, action_type, parameters, context)
+        rule_results = evaluate_rules(base_rules, action_type, parameters, context, data_provider)
 
         violations = [rr.violation_code for rr in rule_results if not rr.passed and rr.violation_code]
-        approved = len(violations) == 0
+        # flag violations are recorded but do not block
+        approved = all(v in flag_codes for v in violations)
         rationale = self._build_rationale(approved, violations)
 
         return EvaluationResult(

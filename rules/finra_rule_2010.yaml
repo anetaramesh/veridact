@@ -1,0 +1,35 @@
+# Source: FINRA Rulebook — Rule 2010, Standards of Commercial Honor
+# https://www.finra.org/rules-guidance/rulebooks/finra-rules/2010
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+#
+# Rule text (verbatim):
+#   "A member, in the conduct of its business, shall observe high standards of
+#   commercial honor and just and equitable principles of trade."
+#
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: finra_rule_2010
+name: FINRA Rule 2010 — Standards of Commercial Honor
+regulation_ref: "FINRA Rule 2010; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Flags any action where the stated memo or purpose field contains language
+  associated with deceptive, manipulative, or dishonest conduct.
+  Implements: FINRA Rule 2010 — Members must observe high standards of
+  commercial honor and just and equitable principles of trade.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - internal_transfer
+  - equity_trade
+  - loan_decision
+params:
+  field: memo
+  # Patterns indicative of deceptive or manipulative intent
+  pattern: '(?i)(fictitious|sham|wash\s*trade|front\s*run|manipulat|pump.{0,10}dump|layering|spoofing)'
+violation_code: COMMERCIAL_HONOR_VIOLATION
+severity: flag
+rationale_template: >
+  The memo field contains language potentially inconsistent with FINRA Rule 2010
+  standards of commercial honor: '{memo}'.
+  Flagged for compliance review — action is not blocked but requires supervisory sign-off.

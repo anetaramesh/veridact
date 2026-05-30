@@ -1,0 +1,26 @@
+# Source: FINRA Rulebook — Rule 2341, Investment Company Securities
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: No member shall sell investment company securities (mutual funds) to any
+# customer at a price which is not reasonably related to the current net asset value.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_2341
+name: FINRA Rule 2341 — Investment Company Securities (Mutual Funds)
+regulation_ref: "FINRA Rule 2341; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Flags mutual fund transactions where the transaction price deviates
+  significantly from the stated NAV, indicating a potentially unfair price.
+  Implements: FINRA Rule 2341 — investment company securities must be sold
+  at prices reasonably related to current net asset value.
+check_type: threshold
+action_types:
+  - equity_trade
+params:
+  field: nav_deviation_pct
+  max_value: 1.0
+violation_code: MUTUAL_FUND_PRICE_DEVIATION
+severity: flag
+rationale_template: >
+  Mutual fund transaction price deviates {nav_deviation_pct}% from stated NAV.
+  Flagged under FINRA Rule 2341 — investment company securities must be sold
+  at prices reasonably related to current net asset value. Review pricing
+  before executing.

@@ -1,34 +1,25 @@
-# Regulation: FINRA Rule 4511 (General Requirements — books and records);
-# SEC Rule 17a-3 (17 C.F.R. § 240.17a-3) — records of accounts subject to restrictions.
-# Securities Exchange Act § 15(b)(4)(E) — broker-dealer obligations for restricted accounts.
-# Court-ordered freezes are governed by applicable state and federal court rules;
-# FINRA Rule 8313 (Release of Disciplinary Information) for regulatory freeze orders.
-#
-# ⚠ REGULATORY COUNSEL REVIEW REQUIRED: frozen_accounts list must be sourced from the
-# firm's account-management system in real time, not a static list.
-
 id: finra_account_freeze
 name: FINRA Frozen Account Check
-regulation_ref: "FINRA Rule 4511; SEC Rule 17a-3 (17 C.F.R. § 240.17a-3); SEA § 15(b)(4)(E)"
-description: >
-  Blocks all transactions on accounts flagged as frozen due to regulatory action,
-  court order, or fraud investigation.
-  Implements: FINRA Rule 4511 (books and records);
-  SEC Rule 17a-3 (17 C.F.R. § 240.17a-3) (restricted account records);
+regulation_ref: FINRA Rule 4511; SEC Rule 17a-3 (17 C.F.R. § 240.17a-3); SEA § 15(b)(4)(E)
+description: 'Blocks all transactions on accounts flagged as frozen due to regulatory
+  action, court order, or fraud investigation. Implements: FINRA Rule 4511 (books
+  and records); SEC Rule 17a-3 (17 C.F.R. § 240.17a-3) (restricted account records);
   Securities Exchange Act § 15(b)(4)(E).
+
+  '
 check_type: account_status
 action_types:
-  - "*"
+- '*'
 params:
   field: account_id
-  # STUB LIST — replace with live account-status feed before production deployment.
-  frozen_accounts:
-    - FROZEN-ACC-001
-    - FROZEN-ACC-002
-    - FROZEN-ACC-003
+  # frozen_accounts is intentionally empty — live FINRA BrokerCheck lookups are
+  # performed via FinraDataProvider.is_account_restricted() when a LiveDataProvider
+  # is wired into AGTAdapter.  Set FINRA_CLIENT_ID and FINRA_CLIENT_SECRET to enable.
+  frozen_accounts: []
 violation_code: ACCOUNT_FROZEN
 severity: hard_block
-rationale_template: >
-  Account '{account_id}' is subject to a regulatory or court-ordered freeze.
-  All transactions are blocked under FINRA Rule 4511 and SEC Rule 17a-3.
-  Contact the compliance desk to resolve the account restriction before retrying.
+rationale_template: 'Account ''{account_id}'' is subject to a regulatory or court-ordered
+  freeze. All transactions are blocked under FINRA Rule 4511 and SEC Rule 17a-3. Contact
+  the compliance desk to resolve the account restriction before retrying.
+
+  '

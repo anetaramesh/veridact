@@ -1,0 +1,26 @@
+# Source: FINRA Rulebook — Rule 1220, Registration Categories
+# Effective: October 1, 2018 (SR-FINRA-2015-017)
+# Rule text: Each associated person of a member shall register in the appropriate
+# registration category based on the activities they perform.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_1220
+name: FINRA Rule 1220 — Registration Categories
+regulation_ref: "FINRA Rule 1220; SR-FINRA-2015-017 eff. October 1, 2018"
+description: >
+  Blocks transactions executed by agents whose ID indicates they hold an
+  inappropriate registration category for the action type being performed.
+  Implements: FINRA Rule 1220 — each associated person must register in
+  the appropriate category for the activities they perform.
+check_type: pattern_match
+action_types:
+  - equity_trade
+  - wire_transfer
+params:
+  field: agent_id
+  pattern: '(?i)(^IA-|^ADVISOR-|^RIA-).*'
+violation_code: REGISTRATION_CATEGORY_MISMATCH
+severity: flag
+rationale_template: >
+  Agent '{agent_id}' registration category may not cover this transaction type.
+  Flagged under FINRA Rule 1220 — verify the agent holds the appropriate
+  registration category before executing this action.

@@ -1,0 +1,28 @@
+# Source: FINRA Rulebook — Rule 6710, Definitions (TRACE — Trade Reporting and Compliance Engine)
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: Defines terms used in the TRACE reporting rules, including "TRACE-Eligible
+# Security" (debt securities including corporate bonds, agency debentures, and ABS).
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_6710
+name: FINRA Rule 6710 — TRACE Eligible Security Definition
+regulation_ref: "FINRA Rule 6710; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Flags fixed income transactions in TRACE-eligible securities that are missing
+  a required TRACE reporting reference, ensuring post-trade transparency reporting.
+  Implements: FINRA Rule 6710 — TRACE-eligible security transactions must
+  be reported to FINRA's Trade Reporting and Compliance Engine.
+check_type: required_fields
+action_types:
+  - wire_transfer
+  - ach_payment
+params:
+  required:
+    - customer_id
+    - account_id
+    - trace_reporting_ref
+violation_code: TRACE_REPORTING_MISSING
+severity: flag
+rationale_template: >
+  Fixed income transaction is missing a TRACE reporting reference: {missing_fields}.
+  Flagged under FINRA Rule 6710 — TRACE-eligible security transactions must be
+  reported to FINRA. Ensure post-trade TRACE reporting is completed.

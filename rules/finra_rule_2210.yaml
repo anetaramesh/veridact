@@ -1,0 +1,29 @@
+# Source: FINRA Rulebook — Rule 2210, Communications with the Public
+# Effective: February 4, 2013 (SR-FINRA-2011-035)
+# Rule text: All member communications must be based on principles of fair dealing and
+# good faith, must be fair and balanced, and must provide a sound basis for evaluating
+# facts. No member may make false, exaggerated, unwarranted, promissory, or misleading
+# statements or claims.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_2210
+name: FINRA Rule 2210 — Communications with the Public
+regulation_ref: "FINRA Rule 2210; SR-FINRA-2011-035 eff. February 4, 2013"
+description: >
+  Flags outbound communications (memo, description fields) containing
+  promissory, misleading, or guaranty language prohibited under FINRA Rule 2210.
+  Implements: FINRA Rule 2210 — communications must be fair, balanced, and
+  not contain false or misleading statements.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - equity_trade
+  - loan_decision
+params:
+  field: memo
+  pattern: '(?i)(guaranteed\s+return|risk.free|no\s+risk|certain\s+profit|100%\s+safe|double\s+your|get\s+rich)'
+violation_code: MISLEADING_COMMUNICATION
+severity: flag
+rationale_template: >
+  The memo field contains language that may violate FINRA Rule 2210 fair
+  communication standards: '{memo}'. Flagged for principal review — remove
+  promissory or misleading language before transmitting to customers.

@@ -1,0 +1,28 @@
+# Source: FINRA Rulebook — Rule 5121, Public Offerings of Securities with Conflicts of Interest
+# Effective: May 5, 2014 (SR-FINRA-2011-039)
+# Rule text: Members with a conflict of interest in a public offering must make
+# specific disclosures to investors and comply with pricing and distribution restrictions.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_5121
+name: FINRA Rule 5121 — Conflicts of Interest in Public Offerings
+regulation_ref: "FINRA Rule 5121; SR-FINRA-2011-039 eff. May 5, 2014"
+description: >
+  Flags public offering transactions where the underwriter has a conflict of
+  interest (e.g. affiliate relationship with the issuer) without a documented
+  independent underwriter or conflict disclosure reference.
+  Implements: FINRA Rule 5121 — members with conflicts of interest in public
+  offerings must disclose conflicts and comply with distribution restrictions.
+check_type: required_fields
+action_types:
+  - equity_trade
+params:
+  required:
+    - customer_id
+    - account_id
+    - conflict_disclosure_ref
+violation_code: OFFERING_CONFLICT_DISCLOSURE_MISSING
+severity: flag
+rationale_template: >
+  Public offering transaction is missing a required conflict-of-interest disclosure:
+  {missing_fields}. Flagged under FINRA Rule 5121 — document any conflicts of
+  interest and ensure independent underwriter review where required.

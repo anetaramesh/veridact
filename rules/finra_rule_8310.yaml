@@ -1,0 +1,26 @@
+# Source: FINRA Rulebook — Rule 8310, Sanctions for Violation of the Rules
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: Sanctions that may be imposed on a member or associated person who is
+# found to have violated a FINRA rule, SEC rule, or applicable securities law include:
+# censure, fine, suspension, expulsion, bar from association, and revocation of registration.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_8310
+name: FINRA Rule 8310 — Sanctions (Disciplinary Actions)
+regulation_ref: "FINRA Rule 8310; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Blocks all transactions executed by agents who have been subject to a FINRA
+  disciplinary sanction (bar, suspension, fine, or expulsion).
+  Implements: FINRA Rule 8310 — barred or suspended individuals may not
+  execute transactions in a member capacity.
+check_type: account_status
+action_types:
+  - "*"
+params:
+  field: agent_id
+  frozen_accounts: []
+violation_code: DISCIPLINARY_SANCTION_ACTIVE
+severity: hard_block
+rationale_template: >
+  Agent '{agent_id}' is subject to an active FINRA disciplinary sanction
+  under Rule 8310. All transactions by this agent are blocked. Check FINRA
+  BrokerCheck for current sanction status before retrying.

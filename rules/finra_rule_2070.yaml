@@ -1,0 +1,27 @@
+# Source: FINRA Rulebook — Rule 2070, Transactions Involving FINRA Employees
+# Effective: June 12, 2012 (SR-FINRA-2008-021)
+# Rule text: No member shall knowingly execute a securities transaction with or for
+# any employee of FINRA without the prior written consent of FINRA.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_2070
+name: FINRA Rule 2070 — Transactions Involving FINRA Employees
+regulation_ref: "FINRA Rule 2070; SR-FINRA-2008-021 eff. June 12, 2012"
+description: >
+  Blocks securities transactions with or for known FINRA employees without
+  documented prior written FINRA consent.
+  Implements: FINRA Rule 2070 — members may not execute transactions with
+  FINRA employees without prior written consent from FINRA.
+check_type: pattern_match
+action_types:
+  - equity_trade
+  - wire_transfer
+  - ach_payment
+params:
+  field: customer_id
+  pattern: '(?i)(^FINRA-EMP-|^FINRA_EMPLOYEE-)'
+violation_code: FINRA_EMPLOYEE_TRANSACTION
+severity: hard_block
+rationale_template: >
+  Customer '{customer_id}' appears to be a FINRA employee.
+  Transaction blocked under FINRA Rule 2070 — prior written consent from
+  FINRA is required before executing securities transactions for FINRA employees.

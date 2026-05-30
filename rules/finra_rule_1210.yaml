@@ -1,0 +1,30 @@
+# Source: FINRA Rulebook — Rule 1210, Registration Requirements
+# Effective: October 1, 2018 (SR-FINRA-2015-017)
+# Rule text: No person associated with a member shall function in any registered capacity
+# unless that person is registered with FINRA in the appropriate registration category.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+id: finra_rule_1210
+name: FINRA Rule 1210 — Registration Requirements
+regulation_ref: "FINRA Rule 1210; SR-FINRA-2015-017 eff. October 1, 2018"
+description: >
+  Blocks transactions executed by agents whose ID pattern indicates they are
+  unregistered or operating outside their approved registration category.
+  Implements: FINRA Rule 1210 — no person shall function in a registered
+  capacity unless properly registered with FINRA.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - equity_trade
+  - loan_decision
+  - ach_payment
+  - internal_transfer
+  - check_issuance
+params:
+  field: agent_id
+  pattern: "(?i)(^unregistered-|^temp-|^inactive-|^suspended-|^UNREG-)"
+violation_code: REGISTRATION_REQUIRED
+severity: hard_block
+rationale_template: >
+  Agent '{agent_id}' appears to be unregistered or operating outside an approved
+  registration category. Action blocked under FINRA Rule 1210. Verify agent
+  registration status with FINRA BrokerCheck before retrying.
