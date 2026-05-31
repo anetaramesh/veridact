@@ -1,0 +1,52 @@
+# FinCEN / BSA — High-Risk Jurisdiction Screening
+# Source: BSA 31 U.S.C. § 5318(i); FATF High-Risk Jurisdictions; OFAC
+# FinCEN Geographic Targeting Orders (GTOs); FATF Black List / Grey List
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: fincen_high_risk_jurisdiction
+name: FinCEN / BSA — High-Risk Jurisdiction Screening
+regulation_ref: "BSA 31 U.S.C. § 5318(i); FATF ICRG High-Risk Jurisdictions; 31 C.F.R. § 1010.610; OFAC 31 C.F.R. Parts 500-598"
+description: >
+  Hard-blocks wire transfers and ACH payments routed to or from jurisdictions
+  designated as high-risk by FATF, OFAC, or FinCEN Geographic Targeting Orders.
+  Covers OFAC-sanctioned countries (Iran, North Korea, Cuba, Syria) plus FATF
+  black-list and grey-list jurisdictions subject to enhanced due diligence.
+  In production, the sanctions_list should be populated via live OFAC / FATF
+  API lookups. The static list below is for testing only.
+check_type: sanctions_list
+action_types:
+  - wire_transfer
+  - ach_payment
+  - internal_transfer
+params:
+  field: jurisdiction_code
+  # ISO 3166-1 alpha-2 / alpha-3 country codes of sanctioned / high-risk jurisdictions.
+  # Production: populate via OFAC SDN country list + FATF high-risk jurisdiction feed.
+  sanctions_list:
+    - IR    # Iran
+    - IRN
+    - KP    # North Korea (DPRK)
+    - PRK
+    - CU    # Cuba
+    - CUB
+    - SY    # Syria
+    - SYR
+    - RU_SANCTIONED   # Russia (OFAC SDN-listed entities only — not blanket)
+    - BY    # Belarus
+    - MM    # Myanmar
+    - SD    # Sudan
+    - VE    # Venezuela (Maduro regime SDN)
+    - YE    # Yemen (Houthi SDN)
+    - LY    # Libya (SDN)
+    - SO    # Somalia
+    - ZW    # Zimbabwe (OFAC)
+    - FATF_BLACK      # FATF blacklist sentinel
+    - FATF_GREY       # FATF greylist enhanced-EDD sentinel
+violation_code: FINCEN_HIGH_RISK_JURISDICTION
+severity: hard_block
+rationale_template: >
+  Jurisdiction code '{jurisdiction_code}' is on the OFAC sanctions list or
+  FATF high-risk jurisdiction register. Transaction hard-blocked under BSA
+  31 U.S.C. § 5318(i) and 31 C.F.R. § 1010.610. Enhanced due diligence
+  is required for any transactions involving this jurisdiction. Contact the
+  AML compliance officer and OFAC counsel before proceeding.

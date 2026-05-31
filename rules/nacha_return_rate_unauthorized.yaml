@@ -1,0 +1,33 @@
+# Nacha — Unauthorized Return Rate Threshold
+# Source: Nacha Operating Rules, Article Two, Subsection 2.12.2
+# Rule text: An Originator's unauthorized entry return rate (R05, R07, R10,
+# R29, R51) must not exceed 0.5% of ACH debit entries.
+# This threshold is strictly enforced — ODFIs must terminate originators
+# that consistently exceed this limit.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: nacha_return_rate_unauthorized
+name: Nacha — Unauthorized Return Rate Threshold (0.5%)
+regulation_ref: "Nacha Operating Rules Art. II § 2.12.2; Unauthorized Returns (R05, R07, R10, R29, R51)"
+description: >
+  Hard-blocks ACH batch submissions where the unauthorized return rate
+  (R05 unauthorised debit, R07 authorisation revoked, R10 customer advises
+  not authorised, R29 corporate not authorised, R51 item related to RCK)
+  exceeds 0.5% of total ACH debit entries.
+  This is Nacha's most strictly enforced return threshold — exceedance
+  leads to mandatory ODFI investigation and potential suspension.
+  Implements: Nacha Operating Rules § 2.12.2 — unauthorized return thresholds.
+check_type: threshold
+action_types:
+  - ach_payment
+params:
+  field: unauthorized_return_rate_pct
+  max_value: 0.5
+violation_code: NACHA_UNAUTHORIZED_RETURN_RATE_EXCEEDED
+severity: hard_block
+rationale_template: >
+  ACH unauthorized return rate of {unauthorized_return_rate_pct}% exceeds the
+  0.5% Nacha threshold under § 2.12.2. Batch hard-blocked. Escalate to the
+  ODFI and compliance desk immediately. Review authorisation records for all
+  affected entries. Continued exceedance will result in suspension of ACH
+  origination privileges and mandatory Nacha investigation.

@@ -1,0 +1,36 @@
+# Nacha — Third-Party Sender (TPSP) Authorization
+# Source: Nacha Operating Rules, Article Eight, Section 8.2
+# Effective: June 1, 2021 (TPSP registration requirement)
+# Rule text: Third-Party Senders (entities that transmit ACH entries on
+# behalf of Originators) must be registered with their ODFI and must have
+# written agreements with each Originator they represent. ODFIs are
+# responsible for TPSP compliance with Nacha Operating Rules.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: nacha_tpsp_authorization
+name: Nacha — Third-Party Sender (TPSP) Authorization
+regulation_ref: "Nacha Operating Rules Art. VIII § 8.2; TPSP Registration Rule eff. June 1, 2021"
+description: >
+  Blocks ACH entries submitted by Third-Party Senders (TPSP / TPPP) where
+  the required ODFI authorization reference, TPSP registration confirmation,
+  or originator agreement reference is missing.
+  Since June 2021, TPSPs must be registered with their ODFI and maintain
+  written agreements with every Originator they represent.
+  Implements: Nacha Operating Rules § 8.2 (Third-Party Sender obligations).
+check_type: required_fields
+action_types:
+  - ach_payment
+params:
+  required:
+    - customer_id
+    - account_id
+    - tpsp_registration_ref
+    - originator_agreement_ref
+    - odfi_authorization_ref
+violation_code: NACHA_TPSP_AUTHORIZATION_MISSING
+severity: hard_block
+rationale_template: >
+  Third-Party Sender ACH entry is missing required authorization documentation:
+  {missing_fields}. Blocked under Nacha Operating Rules § 8.2.
+  Verify TPSP registration with the ODFI, confirm written originator agreement
+  exists, and obtain ODFI authorization before resubmitting.

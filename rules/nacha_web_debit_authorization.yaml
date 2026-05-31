@@ -1,0 +1,36 @@
+# Nacha — WEB Debit Authorization Requirements
+# Source: Nacha Operating Rules, Article Two, Section 2.5.14
+# Effective: March 19, 2021 (account validation requirement added)
+# Rule text: Originators of WEB debit entries must use a commercially
+# reasonable fraudulent transaction detection system and must validate
+# the account to be debited on the first use and when account information
+# changes.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: nacha_web_debit_authorization
+name: Nacha — WEB Debit Authorization & Account Validation
+regulation_ref: "Nacha Operating Rules Art. II § 2.5.14; WEB Debit Account Validation Rule eff. March 19, 2021"
+description: >
+  Blocks internet-initiated (WEB SEC code) ACH debit entries where the
+  required web authorization reference or account validation confirmation
+  is missing. Since March 2021, Nacha requires Originators of WEB debits
+  to validate the account on first use via a commercially reasonable method
+  (micro-deposits, instant verification, or third-party validation service).
+  Implements: Nacha Operating Rules § 2.5.14 (WEB Debit).
+check_type: required_fields
+action_types:
+  - ach_payment
+params:
+  required:
+    - customer_id
+    - account_id
+    - web_authorization_ref
+    - account_validation_ref
+violation_code: NACHA_WEB_DEBIT_AUTHORIZATION_MISSING
+severity: hard_block
+rationale_template: >
+  WEB debit ACH entry is missing required authorization or account validation
+  documentation: {missing_fields}. Blocked under Nacha Operating Rules § 2.5.14.
+  Obtain a valid web authorization from the account holder and confirm account
+  validation (micro-deposit, instant verification, or approved third-party
+  service) before resubmitting.

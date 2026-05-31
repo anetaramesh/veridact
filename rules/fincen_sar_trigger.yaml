@@ -1,0 +1,37 @@
+# FinCEN / BSA — Suspicious Activity Report (SAR) Trigger
+# Source: Bank Secrecy Act 31 U.S.C. § 5318(g); 31 C.F.R. § 1020.320
+# Rule text: A financial institution shall file a SAR with FinCEN for any
+# transaction involving $5,000 or more where the institution knows, suspects,
+# or has reason to suspect the transaction involves funds derived from illegal
+# activities or is designed to evade reporting requirements.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: fincen_sar_trigger
+name: FinCEN / BSA — Suspicious Activity Report (SAR) Trigger
+regulation_ref: "BSA 31 U.S.C. § 5318(g); 31 C.F.R. § 1020.320; FinCEN SAR regulations"
+description: >
+  Hard-blocks and flags for mandatory SAR review when transaction memo, routing
+  note, or purpose field contains language indicative of money laundering,
+  terrorist financing, fraud, or other suspicious activity.
+  Covers: layering, placement, integration, terrorist financing indicators,
+  tax evasion language, and explicit references to illicit activity.
+  SAR must be filed within 30 calendar days of detection under 31 C.F.R. § 1020.320.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - check_issuance
+  - internal_transfer
+  - equity_trade
+  - loan_decision
+params:
+  field: memo
+  pattern: '(?i)(money.{0,10}launder|terror|financ.{0,10}terror|illicit|criminal.{0,10}proceed|drug.{0,10}proceed|narco|cartel|tax.{0,10}evas|tax.{0,10}evad|offshore.{0,10}hide|undeclared.{0,10}fund|black.{0,10}market|brib|kickback|embezzl|ponzi|fraud.{0,10}proceed)'
+violation_code: FINCEN_SAR_TRIGGER
+severity: hard_block
+rationale_template: >
+  Transaction memo contains language triggering mandatory SAR review under BSA
+  31 U.S.C. § 5318(g). Action hard-blocked. File a Suspicious Activity Report
+  with FinCEN within 30 days. Escalate to the AML compliance officer and legal
+  counsel immediately. Do not disclose the SAR filing to the customer or any
+  third party (31 U.S.C. § 5318(g)(2) — tipping off prohibition).

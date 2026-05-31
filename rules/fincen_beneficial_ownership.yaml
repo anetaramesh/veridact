@@ -1,0 +1,40 @@
+# FinCEN / BSA — Beneficial Ownership (CDD Rule)
+# Source: FinCEN Customer Due Diligence Rule 31 C.F.R. § 1010.230
+# Effective: May 11, 2018
+# Rule text: Covered financial institutions must identify and verify the
+# identity of the beneficial owners of legal entity customers. Beneficial
+# owners are individuals who own 25% or more of the equity, plus one
+# control prong (individual with significant responsibility to control,
+# manage, or direct the legal entity).
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: fincen_beneficial_ownership
+name: FinCEN / BSA — Beneficial Ownership (CDD Rule 5th Pillar)
+regulation_ref: "BSA 31 C.F.R. § 1010.230; FinCEN CDD Rule eff. May 11, 2018; FATF Recommendation 10"
+description: >
+  Blocks account openings and large wire transfers for legal entity customers
+  where beneficial ownership certification is missing. Under the FinCEN CDD
+  Rule (5th AML pillar), covered financial institutions must collect and verify
+  the identity of each beneficial owner of legal entity customers.
+  Required fields: beneficial_owner_id, beneficial_owner_dob,
+  beneficial_owner_ssn_ref (or passport_ref for foreign persons), and
+  control_prong_name (the individual with significant management control).
+check_type: required_fields
+action_types:
+  - account_open
+  - wire_transfer
+params:
+  required:
+    - customer_id
+    - account_id
+    - beneficial_owner_id
+    - beneficial_owner_dob
+    - control_prong_name
+violation_code: FINCEN_BENEFICIAL_OWNERSHIP_MISSING
+severity: hard_block
+rationale_template: >
+  Beneficial ownership certification is incomplete. Missing fields: {missing_fields}.
+  Account opening / wire transfer blocked under FinCEN CDD Rule
+  31 C.F.R. § 1010.230. Collect and verify the identity of all beneficial
+  owners (≥ 25% equity interest) and the control prong individual before
+  proceeding.

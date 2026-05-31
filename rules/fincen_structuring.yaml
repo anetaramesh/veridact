@@ -1,0 +1,36 @@
+# FinCEN / BSA — Structuring Detection
+# Source: Bank Secrecy Act 31 U.S.C. § 5324; 31 C.F.R. § 1010.314
+# Rule text: No person shall for the purpose of evading the CTR reporting
+# requirements structure or assist in structuring any transaction.
+# Structuring is a federal crime regardless of whether the underlying funds
+# are from a lawful source.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: fincen_structuring
+name: FinCEN / BSA — Structuring / Smurfing Detection
+regulation_ref: "BSA 31 U.S.C. § 5324; 31 C.F.R. § 1010.314; FinCEN Advisory FIN-2010-A005"
+description: >
+  Hard-blocks transactions where the memo, routing note, or agent note contains
+  language indicating intentional structuring to evade CTR filing obligations.
+  Structuring is a criminal offence under 31 U.S.C. § 5324 regardless of
+  whether the underlying funds are legitimate.
+  Pattern matches: structuring keywords, smurfing references, explicit CTR
+  evasion language, and split-transaction indicators.
+  A SAR filing is mandatory when structuring is detected — 31 U.S.C. § 5318(g).
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - check_issuance
+  - internal_transfer
+  - cash_deposit
+params:
+  field: memo
+  pattern: '(?i)(structur|smurfing|smurf|break.*up.*transaction|split.*deposit|avoid.*report|evad.*CTR|under.*ten|just.*below.*limit|9[,\s]*[0-9]{3}|9500|9800|9900)'
+violation_code: FINCEN_STRUCTURING_DETECTED
+severity: hard_block
+rationale_template: >
+  Transaction memo contains indicators of structuring activity under BSA
+  31 U.S.C. § 5324. Action hard-blocked. A Suspicious Activity Report (SAR)
+  filing is mandatory under 31 U.S.C. § 5318(g). Escalate to the AML
+  compliance officer immediately. Do not inform the customer.

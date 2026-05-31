@@ -1,0 +1,30 @@
+# Nacha — Administrative Return Rate Threshold
+# Source: Nacha Operating Rules, Article Two, Subsection 2.12.2
+# Effective: September 18, 2015
+# Rule text: An Originator's or TPSP's administrative return rate (R02, R03,
+# R04 — invalid / closed account) must not exceed 3.0% of ACH entries.
+# ODFIs must monitor and may terminate originators exceeding this threshold.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: nacha_return_rate_admin
+name: Nacha — Administrative Return Rate Threshold (3.0%)
+regulation_ref: "Nacha Operating Rules Art. II § 2.12.2; Administrative Returns (R02, R03, R04)"
+description: >
+  Flags ACH batch submissions where the administrative return rate (invalid or
+  closed account returns: R02, R03, R04) exceeds 3.0% of total entries.
+  Exceeding this threshold triggers mandatory ODFI review and may result in
+  Nacha investigation or origination privilege suspension.
+  Implements: Nacha Operating Rules § 2.12.2 — administrative return thresholds.
+check_type: threshold
+action_types:
+  - ach_payment
+params:
+  field: admin_return_rate_pct
+  max_value: 3.0
+violation_code: NACHA_ADMIN_RETURN_RATE_EXCEEDED
+severity: soft_hold
+rationale_template: >
+  ACH administrative return rate of {admin_return_rate_pct}% exceeds the 3.0%
+  Nacha threshold under § 2.12.2. Batch placed on soft hold for ODFI review.
+  Review account data quality and correct invalid/closed account records.
+  Continued exceedance may result in suspension of ACH origination privileges.

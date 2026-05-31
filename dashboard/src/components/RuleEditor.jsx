@@ -57,7 +57,36 @@ const GATEWAY_FILES = [
   'gateway_system_error.yaml',
 ]
 
-const ALL_RULE_FILES = [...FINRA_FILES, ...GATEWAY_FILES]
+const FINCEN_BSA_FILES = [
+  'fincen_ctr_threshold.yaml',
+  'fincen_structuring.yaml',
+  'fincen_sar_trigger.yaml',
+  'fincen_beneficial_ownership.yaml',
+  'fincen_high_risk_jurisdiction.yaml',
+]
+
+const NACHA_FILES = [
+  'nacha_same_day_ach_limit.yaml',
+  'nacha_return_rate_admin.yaml',
+  'nacha_return_rate_unauthorized.yaml',
+  'nacha_web_debit_authorization.yaml',
+  'nacha_micro_entry_verification.yaml',
+  'nacha_tpsp_authorization.yaml',
+]
+
+const ALL_RULE_FILES = [...FINRA_FILES, ...GATEWAY_FILES, ...FINCEN_BSA_FILES, ...NACHA_FILES]
+
+// Action-type coverage matrix — ✓ covered, — not applicable
+const COVERAGE_MATRIX = [
+  { category: 'FINRA',       wire: true,  ach: true,  card: false, equity: true,  loan: true,  account: true  },
+  { category: 'Gateway',     wire: true,  ach: true,  card: true,  equity: true,  loan: true,  account: true  },
+  { category: 'FinCEN / BSA',wire: true,  ach: true,  card: true,  equity: true,  loan: true,  account: false },
+  { category: 'Nacha',       wire: false, ach: true,  card: false, equity: false, loan: false, account: false },
+  { category: 'SEC',         wire: false, ach: false, card: false, equity: true,  loan: false, account: false },
+  { category: 'CFPB',        wire: true,  ach: true,  card: true,  equity: false, loan: true,  account: true  },
+  { category: 'OCC / Fed',   wire: true,  ach: true,  card: true,  equity: false, loan: true,  account: true  },
+  { category: 'PCI DSS',     wire: true,  ach: true,  card: true,  equity: false, loan: false, account: false },
+]
 
 const EMPTY_RULE = {
   id: '',
@@ -235,16 +264,18 @@ export default function RuleEditor({ apiBase }) {
     const applied = Object.values(appliedStatus).filter(Boolean).length
     const total = Object.keys(appliedStatus).length
 
-    const finraApplied = FINRA_FILES.filter(f => appliedStatus[f.replace('.yaml','')] !== false).length
-    const gwApplied   = GATEWAY_FILES.filter(f => appliedStatus[f.replace('.yaml','')] !== false).length
+    const countApplied = files => files.filter(f => appliedStatus[f.replace('.yaml','')] !== false).length
 
     return (
       <div className="max-w-2xl">
         <PageHeader />
 
-        <p className="text-sm text-slate-600 mb-5">
+        <p className="text-sm text-slate-600 mb-4">
           Toggle rules on/off to include them in real-time compliance evaluation. Click a rule to edit it.
         </p>
+
+        {/* ── Coverage matrix ── */}
+        <CoverageMatrix />
 
         {total > 0 && (
           <div className="text-xs text-slate-400 mb-4">
@@ -255,7 +286,7 @@ export default function RuleEditor({ apiBase }) {
         {/* ── FINRA sub-section ── */}
         <RuleSection
           title="FINRA Compliance Rules"
-          badge={`${finraApplied} / ${FINRA_FILES.length}`}
+          badge={`${countApplied(FINRA_FILES)} / ${FINRA_FILES.length}`}
           files={FINRA_FILES}
           appliedStatus={appliedStatus}
           toggling={toggling}
@@ -267,8 +298,32 @@ export default function RuleEditor({ apiBase }) {
         {/* ── Gateway sub-section ── */}
         <RuleSection
           title="Payment Gateway Rules"
-          badge={`${gwApplied} / ${GATEWAY_FILES.length}`}
+          badge={`${countApplied(GATEWAY_FILES)} / ${GATEWAY_FILES.length}`}
           files={GATEWAY_FILES}
+          appliedStatus={appliedStatus}
+          toggling={toggling}
+          onSelect={handleSelectFile}
+          onToggle={handleToggle}
+          defaultOpen={true}
+        />
+
+        {/* ── FinCEN / BSA sub-section ── */}
+        <RuleSection
+          title="FinCEN / BSA — Anti-Money Laundering"
+          badge={`${countApplied(FINCEN_BSA_FILES)} / ${FINCEN_BSA_FILES.length}`}
+          files={FINCEN_BSA_FILES}
+          appliedStatus={appliedStatus}
+          toggling={toggling}
+          onSelect={handleSelectFile}
+          onToggle={handleToggle}
+          defaultOpen={true}
+        />
+
+        {/* ── Nacha sub-section ── */}
+        <RuleSection
+          title="Nacha — ACH Network Rules"
+          badge={`${countApplied(NACHA_FILES)} / ${NACHA_FILES.length}`}
+          files={NACHA_FILES}
           appliedStatus={appliedStatus}
           toggling={toggling}
           onSelect={handleSelectFile}
@@ -512,6 +567,47 @@ function PageHeader({ subtitle }) {
       <p className="text-sm text-slate-500 mt-0.5">
         Add, update, or create compliance rule files — changes are written directly to the rules directory.
       </p>
+    </div>
+  )
+}
+
+function CoverageMatrix() {
+  const cols = ['Wire', 'ACH', 'Card', 'Equity', 'Loan', 'Account']
+  const keys = ['wire', 'ach', 'card', 'equity', 'loan', 'account']
+
+  return (
+    <div className="mb-6">
+      <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-200">
+        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Action Type Coverage</h2>
+        <span className="text-xs text-slate-400">by rule category</span>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs border-collapse">
+          <thead>
+            <tr>
+              <th className="text-left py-1.5 px-2 text-slate-500 font-semibold bg-slate-50 border border-slate-200 min-w-[120px]">Category</th>
+              {cols.map(c => (
+                <th key={c} className="py-1.5 px-2 text-center text-slate-500 font-semibold bg-slate-50 border border-slate-200 w-14">{c}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {COVERAGE_MATRIX.map((row, i) => (
+              <tr key={row.category} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                <td className="py-1.5 px-2 font-medium text-slate-700 border border-slate-200">{row.category}</td>
+                {keys.map(k => (
+                  <td key={k} className="py-1.5 px-2 text-center border border-slate-200">
+                    {row[k]
+                      ? <span className="text-emerald-600 font-bold">✓</span>
+                      : <span className="text-slate-300">—</span>
+                    }
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

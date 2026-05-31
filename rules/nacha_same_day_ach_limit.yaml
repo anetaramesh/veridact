@@ -1,0 +1,30 @@
+# Nacha — Same-Day ACH Per-Transaction Limit
+# Source: Nacha Operating Rules, Article Two, Subsection 2.12.4
+# Effective: March 18, 2022 (limit raised to $1,000,000)
+# Prior limit: $100,000 (eff. March 20, 2020)
+# Rule text: No single Same Day ACH transaction may exceed $1,000,000.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: nacha_same_day_ach_limit
+name: Nacha — Same-Day ACH Per-Transaction Limit ($1,000,000)
+regulation_ref: "Nacha Operating Rules Art. II § 2.12.4; eff. March 18, 2022"
+description: >
+  Hard-blocks Same-Day ACH transactions exceeding $1,000,000 per transaction.
+  AI agents must not autonomously initiate Same-Day ACH entries above this
+  limit. Standard ACH (next-day) is not subject to this per-transaction cap
+  but may be subject to other volume limits per the ODFI agreement.
+  Implements: Nacha Operating Rules Article Two, Subsection 2.12.4.
+check_type: threshold
+action_types:
+  - ach_payment
+params:
+  field: amount
+  max_value: 1000000
+violation_code: NACHA_SAME_DAY_LIMIT_EXCEEDED
+severity: hard_block
+rationale_template: >
+  Same-Day ACH transaction amount ${amount} exceeds the $1,000,000 per-transaction
+  limit under Nacha Operating Rules § 2.12.4. Transaction hard-blocked.
+  Split into multiple transactions or use wire transfer for amounts above this
+  threshold. Verify with the ODFI that the transaction qualifies for standard
+  next-day ACH processing if splitting is not feasible.

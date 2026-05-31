@@ -1,0 +1,37 @@
+# Nacha — Micro-Entry Verification Requirements
+# Source: Nacha Operating Rules, Subsection 2.5.17
+# Effective: September 16, 2022 (Phase 1); March 17, 2023 (Phase 2)
+# Rule text: Originators of Micro-Entries (small credit/debit pairs used for
+# account ownership verification) must include standardized identification
+# in the Company Entry Description field and must debit the micro-entry
+# amounts within a short time frame. Originators must be registered with Nacha.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: nacha_micro_entry_verification
+name: Nacha — Micro-Entry Verification & Registration
+regulation_ref: "Nacha Operating Rules § 2.5.17; Micro-Entry Rule eff. September 16, 2022"
+description: >
+  Blocks micro-entry ACH transactions (small credit-debit pairs used for
+  account verification) where the required Nacha micro-entry registration
+  reference or verification confirmation is missing.
+  Originators must: (1) be registered with Nacha as a micro-entry originator,
+  (2) include standardized identification in the Company Entry Description,
+  (3) debit micro-entry amounts within 2 banking days of the credit.
+  Implements: Nacha Operating Rules § 2.5.17.
+check_type: required_fields
+action_types:
+  - ach_payment
+params:
+  required:
+    - customer_id
+    - account_id
+    - micro_entry_registration_ref
+    - micro_entry_verification_ref
+violation_code: NACHA_MICRO_ENTRY_MISSING
+severity: hard_block
+rationale_template: >
+  Micro-entry ACH transaction is missing required registration or verification
+  reference: {missing_fields}. Blocked under Nacha Operating Rules § 2.5.17.
+  Ensure the Originator is registered with Nacha as a micro-entry originator
+  and that the verification reference confirms account ownership before
+  resubmitting.
