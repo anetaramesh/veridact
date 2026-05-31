@@ -75,7 +75,8 @@ async def get_active_status(request: Request) -> JSONResponse:
 @router.post("/{rule_id}/toggle", summary="Toggle a rule's applied status")
 async def toggle_rule(rule_id: str, request: Request) -> JSONResponse:
     """Toggle the applied/not-applied status of a single rule by ID."""
-    all_rules = getattr(request.app.state, "rules", [])
+    from src.rules.loader import load_rules
+    all_rules = load_rules(RULES_DIR)
     all_ids = {r.id for r in all_rules}
     if rule_id not in all_ids:
         raise HTTPException(status_code=404, detail=f"Rule ID '{rule_id}' not found.")
@@ -95,9 +96,8 @@ async def toggle_rule(rule_id: str, request: Request) -> JSONResponse:
     _save_active_ids(active_ids)
 
     # Reload governance engine with updated active rules
-    from src.rules.loader import load_rules
     from src.engine.governance import GovernanceEngine
-    all_loaded = load_rules(RULES_DIR)
+    all_loaded = all_rules  # already loaded above
     active_rules = [r for r in all_loaded if r.id in active_ids]
     data_provider = getattr(request.app.state.governance, "_data_provider", None)
     request.app.state.rules = active_rules

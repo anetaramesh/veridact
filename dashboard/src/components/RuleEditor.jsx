@@ -48,6 +48,17 @@ const FINRA_FILES = [
   'finra_wire_threshold.yaml',
 ]
 
+const GATEWAY_FILES = [
+  'gateway_fraud_decline.yaml',
+  'gateway_card_restriction.yaml',
+  'gateway_limit_exceeded.yaml',
+  'gateway_insufficient_funds.yaml',
+  'gateway_invalid_data.yaml',
+  'gateway_system_error.yaml',
+]
+
+const ALL_RULE_FILES = [...FINRA_FILES, ...GATEWAY_FILES]
+
 const EMPTY_RULE = {
   id: '',
   name: '',
@@ -88,9 +99,9 @@ export default function RuleEditor({ apiBase }) {
       const res = await fetch(`${apiBase}/rules`)
       if (!res.ok) throw new Error()
       const all = await res.json()
-      setFiles(FINRA_FILES.filter(f => all.includes(f)))
+      setFiles(ALL_RULE_FILES.filter(f => all.includes(f)))
     } catch {
-      setFiles(FINRA_FILES)
+      setFiles(ALL_RULE_FILES)
     }
   }, [apiBase])
 
@@ -224,41 +235,48 @@ export default function RuleEditor({ apiBase }) {
     const applied = Object.values(appliedStatus).filter(Boolean).length
     const total = Object.keys(appliedStatus).length
 
+    const finraApplied = FINRA_FILES.filter(f => appliedStatus[f.replace('.yaml','')] !== false).length
+    const gwApplied   = GATEWAY_FILES.filter(f => appliedStatus[f.replace('.yaml','')] !== false).length
+
     return (
       <div className="max-w-2xl">
         <PageHeader />
 
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200">
-            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">FINRA Rules</h2>
-            {total > 0 && (
-              <span className="text-xs text-slate-400">
-                <span className="font-semibold text-emerald-600">{applied}</span> / {total} applied to live feed
-              </span>
-            )}
+        <p className="text-sm text-slate-600 mb-5">
+          Toggle rules on/off to include them in real-time compliance evaluation. Click a rule to edit it.
+        </p>
+
+        {total > 0 && (
+          <div className="text-xs text-slate-400 mb-4">
+            <span className="font-semibold text-emerald-600">{applied}</span> / {total} rules applied to live feed
           </div>
+        )}
 
-          <p className="text-sm text-slate-600 mb-4">
-            Toggle rules on/off to include them in real-time compliance evaluation. Click a rule to edit it.
-          </p>
+        {/* ── FINRA sub-section ── */}
+        <RuleSection
+          title="FINRA Compliance Rules"
+          badge={`${finraApplied} / ${FINRA_FILES.length}`}
+          files={FINRA_FILES}
+          appliedStatus={appliedStatus}
+          toggling={toggling}
+          onSelect={handleSelectFile}
+          onToggle={handleToggle}
+          defaultOpen={true}
+        />
 
-          <div className="grid grid-cols-1 gap-2 mb-6">
-            {FINRA_FILES.map(f => {
-              const ruleId = f.replace('.yaml', '')
-              const isApplied = appliedStatus[ruleId] !== false // default true if unknown
-              return (
-                <FileCard
-                  key={f}
-                  filename={f}
-                  applied={isApplied}
-                  toggling={toggling === ruleId}
-                  onSelect={() => handleSelectFile(f)}
-                  onToggle={e => handleToggle(e, ruleId)}
-                />
-              )
-            })}
-          </div>
+        {/* ── Gateway sub-section ── */}
+        <RuleSection
+          title="Payment Gateway Rules"
+          badge={`${gwApplied} / ${GATEWAY_FILES.length}`}
+          files={GATEWAY_FILES}
+          appliedStatus={appliedStatus}
+          toggling={toggling}
+          onSelect={handleSelectFile}
+          onToggle={handleToggle}
+          defaultOpen={true}
+        />
 
+        <div className="mt-6">
           <button
             onClick={handleNewFile}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 transition-colors"
@@ -278,14 +296,15 @@ export default function RuleEditor({ apiBase }) {
 
   return (
     <div className="max-w-3xl">
-      <div className="flex items-center gap-3 mb-6">
+      <div className="mb-6">
+        <PageHeader subtitle={displayFilename} />
         <button
           onClick={() => { setMode(null); setStatus(null) }}
-          className="text-xs text-slate-400 hover:text-slate-700 flex items-center gap-1"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-400 bg-white hover:bg-slate-50 transition-colors"
         >
-          ← Back
+          <ArrowLeftIcon />
+          Back to rules
         </button>
-        <PageHeader subtitle={displayFilename} />
       </div>
 
       {/* Section header: FINRA */}
@@ -333,7 +352,7 @@ export default function RuleEditor({ apiBase }) {
                 defaultValue=""
               >
                 <option value="">— choose template —</option>
-                {FINRA_FILES.map(f => <option key={f} value={f}>{f}</option>)}
+                {ALL_RULE_FILES.map(f => <option key={f} value={f}>{f}</option>)}
               </select>
             </div>
           </Field>
@@ -497,6 +516,46 @@ function PageHeader({ subtitle }) {
   )
 }
 
+function RuleSection({ title, badge, files, appliedStatus, toggling, onSelect, onToggle, defaultOpen = true }) {
+  const [open, setOpen] = useState(defaultOpen)
+
+  return (
+    <div className="mb-4 border border-slate-200 rounded-sm overflow-hidden">
+      {/* Section header — click to collapse/expand */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 transition-colors text-left"
+      >
+        <div className="flex items-center gap-2">
+          <span className={`transition-transform text-slate-400 text-xs ${open ? 'rotate-90' : ''}`}>▶</span>
+          <span className="text-xs font-semibold text-slate-700 uppercase tracking-wide">{title}</span>
+        </div>
+        <span className="text-xs text-slate-400 font-medium">{badge} applied</span>
+      </button>
+
+      {/* Rule list */}
+      {open && (
+        <div className="grid grid-cols-1 divide-y divide-slate-100">
+          {files.map(f => {
+            const ruleId = f.replace('.yaml', '')
+            const isApplied = appliedStatus[ruleId] !== false
+            return (
+              <FileCard
+                key={f}
+                filename={f}
+                applied={isApplied}
+                toggling={toggling === ruleId}
+                onSelect={() => onSelect(f)}
+                onToggle={e => onToggle(e, ruleId)}
+              />
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function FileCard({ filename, applied, toggling, onSelect, onToggle }) {
   const ruleId = filename.replace('.yaml', '')
   const label = ruleId.replace(/_/g, ' ').replace(/\bfinra\b/i, 'FINRA').replace(/\brule\b/i, 'Rule')
@@ -555,6 +614,15 @@ function PlusIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+  )
+}
+
+function ArrowLeftIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 5 5 12 12 19" />
     </svg>
   )
 }

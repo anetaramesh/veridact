@@ -1,0 +1,35 @@
+# Payment Gateway — Invalid Card / Account Data Codes
+# Covers codes indicating malformed, expired, or invalid payment credentials.
+# Flagged for data quality review — may indicate data integrity issues or testing.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: gateway_invalid_data
+name: Payment Gateway — Invalid Card / Account Data
+regulation_ref: "FINRA Rule 4512; FINRA Rule 4517; ISO 8583 response codes 14, 54, 82, 507, 508, 509"
+description: >
+  Flags actions where the gateway returns invalid card or account data codes,
+  including expired cards, invalid card numbers (Luhn failure), invalid CVV/CVC,
+  or invalid account numbers. Flagged for data quality review under FINRA
+  Rule 4512 (customer account information) and Rule 4517 (account records).
+  Covers ISO 8583 codes 14 (invalid card number), 54 (expired card),
+  82 (invalid CVV), and processor codes 507 (expired), 508 (invalid PAN),
+  509 (invalid CVV), INVALID, EXPIRED, BAD_CVV, LUHN_FAIL.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - internal_transfer
+  - check_issuance
+  - equity_trade
+  - loan_decision
+  - account_open
+params:
+  field: gateway_response_code
+  pattern: "(?i)^(14|54|82|507|508|509|INVALID|EXPIRED|BAD_CVV|LUHN|INVALID_CARD|INVALID_ACCOUNT|INVALID_ROUTING|FORMAT_ERROR)$"
+violation_code: GATEWAY_INVALID_CARD_DATA
+severity: flag
+rationale_template: >
+  Gateway response code '{gateway_response_code}' indicates invalid or malformed
+  payment credentials. Flagged under FINRA Rule 4512 (customer account information)
+  and Rule 4517 (account records). Verify customer data integrity before retrying.
+  Repeated invalid-data patterns may indicate probing or enumeration activity.

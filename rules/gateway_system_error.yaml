@@ -1,0 +1,34 @@
+# Payment Gateway — System / Processor Error Codes
+# Covers codes indicating upstream processor unavailability or system faults.
+# Placed on soft hold — agent must not auto-retry without compliance clearance.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: gateway_system_error
+name: Payment Gateway — Processor / System Error
+regulation_ref: "FINRA Rule 3110(a); FINRA Rule 4511; ISO 8583 response codes 91, 96, 502, 503, 504"
+description: >
+  Places a soft hold when the payment gateway returns a system, processor, or
+  network error code. Prevents AI agents from auto-retrying failed transactions
+  without human supervisory clearance, which could result in duplicate
+  submissions or unintended fund movements. Covers ISO 8583 codes 91 (issuer
+  unavailable), 96 (system malfunction), and HTTP-layer codes 502 (bad gateway),
+  503 (service unavailable), 504 (gateway timeout), plus processor codes
+  517 (issuer system error), TIMEOUT, UNAVAILABLE, SERVICE_ERROR, PROCESSOR_DOWN.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - internal_transfer
+  - check_issuance
+  - equity_trade
+params:
+  field: gateway_response_code
+  pattern: "(?i)^(91|96|502|503|504|517|TIMEOUT|UNAVAILABLE|SERVICE_ERROR|PROCESSOR_DOWN|NETWORK_ERROR|GATEWAY_ERROR|SYSTEM_FAULT|RE_ENTER)$"
+violation_code: GATEWAY_SYSTEM_ERROR
+severity: soft_hold
+rationale_template: >
+  Gateway response code '{gateway_response_code}' indicates a processor or
+  system error. Transaction placed on soft hold — autonomous retry is not
+  permitted without supervisory clearance under FINRA Rule 3110(a). Contact
+  the operations desk to confirm the transaction status before resubmitting
+  to avoid duplicate processing or double-debit.

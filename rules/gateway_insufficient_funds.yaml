@@ -1,0 +1,31 @@
+# Payment Gateway — Insufficient Funds / NSF Codes
+# Covers codes indicating the source account lacks sufficient funds.
+# Placed on soft hold — repeated NSF patterns may indicate structuring.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: gateway_insufficient_funds
+name: Payment Gateway — Insufficient Funds (NSF)
+regulation_ref: "FINRA Rule 3110(a); BSA 31 U.S.C. § 5318(g); ISO 8583 response code 51, R01"
+description: >
+  Places a soft hold when the gateway returns an insufficient-funds or
+  non-sufficient-funds (NSF) decline code. Repeated NSF patterns across
+  accounts may indicate structuring or layering activity and trigger
+  SAR obligations. Covers ISO 8583 code 51 (insufficient funds),
+  R01 (insufficient funds — ACH), R09 (uncollected funds), and processor
+  codes 506, NSF, INSUFFICIENT, NO_FUNDS, UNCOLLECTED.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - internal_transfer
+  - check_issuance
+params:
+  field: gateway_response_code
+  pattern: "(?i)^(51|506|R01|R09|NSF|INSUFFICIENT|NO_FUNDS|UNCOLLECTED_FUNDS|INSUFFICIENT_FUNDS)$"
+violation_code: GATEWAY_INSUFFICIENT_FUNDS
+severity: soft_hold
+rationale_template: >
+  Gateway response code '{gateway_response_code}' indicates insufficient funds
+  in the source account. Transaction placed on soft hold. If this is part of
+  a recurring pattern across multiple accounts or amounts, review for potential
+  structuring under BSA 31 U.S.C. § 5318(g) and escalate to the AML officer.

@@ -1,0 +1,33 @@
+# Payment Gateway — Limit Exceeded Codes
+# Covers codes indicating the transaction exceeds velocity, daily, or amount limits.
+# Placed on soft hold for supervisory review per FINRA Rule 3110.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: gateway_limit_exceeded
+name: Payment Gateway — Transaction Limit Exceeded
+regulation_ref: "FINRA Rule 3110(a); BSA 31 C.F.R. § 1010.410; ISO 8583 response codes 61, 65, 513, 514"
+description: >
+  Places a soft hold when the gateway indicates the transaction exceeds
+  velocity limits, daily limits, or amount thresholds set by the issuer.
+  Covers ISO 8583 codes 61 (exceeds withdrawal amount limit), 65 (exceeds
+  withdrawal frequency limit), and processor codes 513 (exceeds transaction
+  limit), 514 (exceeds daily limit), R01 (insufficient funds / limit), LIMIT,
+  EXCEED, VELOCITY. Requires supervisory review under FINRA Rule 3110(a).
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - internal_transfer
+  - check_issuance
+  - equity_trade
+params:
+  field: gateway_response_code
+  pattern: "(?i)^(61|65|513|514|R01|LIMIT|EXCEED|VELOCITY|OVER_LIMIT|DAILY_LIMIT|AMOUNT_LIMIT)$"
+violation_code: GATEWAY_LIMIT_EXCEEDED
+severity: soft_hold
+rationale_template: >
+  Gateway response code '{gateway_response_code}' indicates a limit or velocity
+  restriction. Transaction placed on soft hold for supervisory review under
+  FINRA Rule 3110(a). Submit a manual approval request to the compliance desk.
+  Review BSA structuring rules — repeated near-limit transactions may require
+  a Suspicious Activity Report.

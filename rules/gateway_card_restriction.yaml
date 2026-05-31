@@ -1,0 +1,33 @@
+# Payment Gateway — Card / Account Restriction Codes
+# Covers codes indicating the account or card is frozen, blocked, or restricted
+# by the issuer. Requires hard block and compliance desk notification.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: gateway_card_restriction
+name: Payment Gateway — Card / Account Restricted
+regulation_ref: "FINRA Rule 4511; FINRA Rule 9551; ISO 8583 response codes 62, 78, 512, R07, R08"
+description: >
+  Hard-blocks actions where the gateway indicates the card or account is
+  restricted, closed, blocked, or subject to a regulatory hold.
+  Covers ISO 8583 codes 62 (restricted card), 78 (no account),
+  and processor codes 510 (card lost), 511 (card stolen), 512 (restricted),
+  R07 (authorisation revoked), R08 (payment stopped), BLOCKED, CLOSED, RESTRICTED.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - internal_transfer
+  - check_issuance
+  - equity_trade
+  - loan_decision
+  - account_open
+params:
+  field: gateway_response_code
+  pattern: "(?i)^(62|78|510|511|512|R07|R08|RESTRICTED|BLOCKED|CLOSED|ACCOUNT_CLOSED|CARD_BLOCKED)$"
+violation_code: GATEWAY_CARD_RESTRICTED
+severity: hard_block
+rationale_template: >
+  Gateway response code '{gateway_response_code}' indicates a restricted or
+  closed account. Action hard-blocked under FINRA Rule 4511 (books and records)
+  and FINRA Rule 9551. Contact the compliance desk to resolve the account
+  restriction before retrying.

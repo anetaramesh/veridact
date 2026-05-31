@@ -1,0 +1,35 @@
+# Payment Gateway — Fraud Decline Codes
+# Covers ISO 8583 codes and processor-specific codes indicating suspected fraud
+# or card pickup scenarios. Requires immediate hard block and compliance escalation.
+# SAR filing may be required under BSA 31 U.S.C. § 5318(g).
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: gateway_fraud_decline
+name: Payment Gateway — Fraud Decline
+regulation_ref: "BSA 31 U.S.C. § 5318(g); FINRA Rule 3310; ISO 8583 response codes 41, 43, 57, 516"
+description: >
+  Hard-blocks any agent action where the payment gateway returns a fraud-related
+  decline code (stolen card, pickup, suspected fraud, transaction not permitted).
+  Triggers mandatory compliance escalation and potential SAR filing.
+  Covers ISO 8583 codes 41 (pick up card — lost), 43 (pick up card — stolen),
+  57 (transaction not permitted to cardholder), and processor codes 516 (fraud),
+  R29 (corporate customer advises not authorised), FRAUD, PICKUP, STOLEN, LOST.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - internal_transfer
+  - check_issuance
+  - equity_trade
+  - loan_decision
+  - account_open
+params:
+  field: gateway_response_code
+  pattern: "(?i)^(41|43|57|516|R29|FRAUD|PICKUP|STOLEN|LOST|DO_NOT_HONOR_FRAUD)$"
+violation_code: GATEWAY_FRAUD_DECLINE
+severity: hard_block
+rationale_template: >
+  Gateway response code '{gateway_response_code}' indicates suspected fraud or
+  card restriction. Action hard-blocked under FINRA Rule 3310 (AML) and BSA
+  31 U.S.C. § 5318(g). Escalate to compliance desk immediately.
+  A Suspicious Activity Report (SAR) may be required.
