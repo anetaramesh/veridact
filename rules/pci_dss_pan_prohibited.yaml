@@ -1,0 +1,35 @@
+# PCI DSS — PAN (Primary Account Number) in Parameters Prohibited
+# Source: PCI DSS v4.0 Requirements 3.3, 3.4, 4.2
+# Rule text: The PAN must be rendered unreadable anywhere it is stored using
+# strong cryptography. PAN must not be transmitted over end-user messaging
+# technologies (email, IM, chat). Full PAN must never appear in logs or
+# transaction parameters in unencrypted form.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: pci_dss_pan_prohibited
+name: PCI DSS v4.0 Req 3.3/4.2 — Primary Account Number (PAN) in Parameters Prohibited
+regulation_ref: "PCI DSS v4.0 Requirements 3.3, 3.4, 4.2; PCI SSC eff. March 31, 2024"
+description: >
+  Hard-blocks any transaction where the memo, routing note, or note field
+  contains a raw Primary Account Number (PAN) — an unencrypted credit/debit
+  card number. Under PCI DSS Requirements 3.3 and 4.2, PANs must be rendered
+  unreadable at rest and must not be transmitted in clear text.
+  Detects: 16-digit Visa/MC/Discover patterns, 15-digit Amex patterns,
+  formatted card numbers with spaces or dashes.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - check_issuance
+  - internal_transfer
+params:
+  field: memo
+  pattern: '\b(?:4[0-9]{3}[- ]?[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}|5[1-5][0-9]{2}[- ]?[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}|3[47][0-9]{2}[- ]?[0-9]{6}[- ]?[0-9]{5}|6(?:011|5[0-9]{2})[- ]?[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4})\b'
+violation_code: PCI_DSS_PAN_IN_PARAMETERS
+severity: hard_block
+rationale_template: >
+  Transaction memo contains what appears to be a raw Primary Account Number
+  (PAN). Hard-blocked under PCI DSS v4.0 Requirements 3.3 and 4.2. PANs must
+  not appear in transaction parameters in unencrypted form. Use a payment token
+  or masked card reference instead. Report this incident to the PCI compliance
+  officer and conduct a scope review.

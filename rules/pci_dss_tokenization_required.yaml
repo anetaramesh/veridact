@@ -1,0 +1,34 @@
+# PCI DSS — Tokenization Required for Card Transactions
+# Source: PCI DSS v4.0 Requirements 3.4, 3.5; PCI SSC Tokenization Guidelines
+# Rule text: Where PANs are stored, they must be rendered unreadable using one
+# of the following: one-way hashes, truncation, index tokens with secure pads,
+# or strong cryptography. Tokenization is the PCI-preferred mechanism for
+# reducing PAN exposure and narrowing scope.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: pci_dss_tokenization_required
+name: PCI DSS v4.0 Req 3.4/3.5 — Payment Token Reference Required
+regulation_ref: "PCI DSS v4.0 Requirements 3.4, 3.5; PCI SSC Tokenization Guidelines eff. March 31, 2024"
+description: >
+  Flags wire and ACH transactions that reference a card payment method
+  (detected via a card_payment_method field) without a corresponding
+  payment_token_ref. Under PCI DSS v4.0, all card-related transactions
+  must use a payment token rather than the raw PAN.
+  The presence of card_payment_method without payment_token_ref indicates
+  the PAN may be referenced in clear text elsewhere in the transaction.
+check_type: required_fields
+action_types:
+  - wire_transfer
+  - ach_payment
+params:
+  required:
+    - customer_id
+    - account_id
+    - payment_token_ref
+violation_code: PCI_DSS_TOKEN_MISSING
+severity: flag
+rationale_template: >
+  Transaction is missing a payment token reference: {missing_fields}.
+  Flagged under PCI DSS v4.0 Requirements 3.4 and 3.5. Card payment transactions
+  must use a payment token (not raw PAN) to minimise cardholder data exposure.
+  Obtain a payment token from the tokenisation service before resubmitting.

@@ -1,0 +1,34 @@
+# OCC / Federal Reserve — Regulation W (Transactions with Affiliates)
+# Source: Federal Reserve Act §§ 23A, 23B; Reg W 12 C.F.R. Part 223
+# Rule text: A bank's covered transactions with any single affiliate are limited
+# to 10% of the bank's capital and surplus. Aggregate covered transactions with
+# all affiliates are limited to 20% of capital and surplus. All covered
+# transactions must be on market terms (arm's-length).
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: occ_reg_w_affiliate_transactions
+name: OCC / Fed — Regulation W — Affiliate Transaction Monitoring
+regulation_ref: "FRA §§ 23A, 23B; Reg W 12 C.F.R. Part 223; eff. April 1, 2003"
+description: >
+  Flags wire transfers and internal transfers where the recipient or memo
+  indicates an affiliate entity, triggering Reg W monitoring obligations.
+  Transactions with affiliates are subject to quantitative limits (10% per
+  affiliate, 20% aggregate) and must be on arm's-length market terms.
+  Covers: affiliate-prefixed recipient IDs, subsidiary, parent company,
+  holding company, and related-entity language in memo.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - internal_transfer
+params:
+  field: memo
+  pattern: '(?i)(affiliate.{0,20}transfer|subsidiary.{0,10}payment|parent.{0,10}company.{0,10}fund|holding.{0,10}company|related.{0,10}party.{0,10}transfer|intra.{0,10}group|intercompany.{0,10}payment|reg.{0,5}w)'
+violation_code: OCC_REG_W_AFFILIATE_FLAG
+severity: soft_hold
+rationale_template: >
+  Transaction memo indicates a potential affiliate transaction subject to
+  Reg W limits under Federal Reserve Act § 23A and 12 C.F.R. Part 223.
+  Transaction placed on soft hold. Verify that this transaction does not
+  exceed the 10% per-affiliate or 20% aggregate capital limit, and confirm
+  it is on arm's-length market terms before proceeding.

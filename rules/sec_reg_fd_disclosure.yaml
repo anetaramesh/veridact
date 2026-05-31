@@ -1,0 +1,32 @@
+# SEC — Regulation FD (Fair Disclosure)
+# Source: SEC Release 33-7881 (17 C.F.R. §§ 243.100-243.103); eff. October 23, 2000
+# Rule text: When an issuer discloses material non-public information to certain
+# individuals or entities, it must make public disclosure of that information.
+# Selective disclosure of MNPI to favoured parties before the general public
+# constitutes a violation of Reg FD.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: sec_reg_fd_disclosure
+name: SEC Regulation FD — Selective Disclosure of Material Information
+regulation_ref: "SEC Reg FD 17 C.F.R. §§ 243.100-243.103; Release 33-7881 eff. Oct 23, 2000"
+description: >
+  Hard-blocks equity trades or loan decisions where the transaction memo contains
+  language indicating selective disclosure of material non-public information (MNPI).
+  Reg FD prohibits issuers from selectively disclosing MNPI to certain parties
+  without simultaneous public disclosure.
+  Covers: MNPI, insider tip, selective disclosure, material non-public, earnings
+  preview, undisclosed merger, guidance leak, front-running indicators.
+check_type: pattern_match
+action_types:
+  - equity_trade
+  - loan_decision
+params:
+  field: memo
+  pattern: '(?i)(material.{0,15}non.{0,5}public|MNPI|selective.{0,10}disclos|insider.{0,10}tip|earnings.{0,10}preview|undisclos.{0,15}merger|guidance.{0,10}leak|pre.{0,5}announcement|front.{0,5}run|non.{0,5}public.{0,10}info)'
+violation_code: SEC_REG_FD_VIOLATION
+severity: hard_block
+rationale_template: >
+  Transaction memo contains indicators of selective disclosure of material
+  non-public information under SEC Regulation FD (17 C.F.R. § 243.100).
+  Action hard-blocked. Escalate to legal counsel and compliance desk immediately.
+  Reg FD violation may trigger SEC enforcement action.

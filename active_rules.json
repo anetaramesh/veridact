@@ -1,6 +1,11 @@
 {
   "active_rule_ids": [
     "adverse_action_notice",
+    "cfpb_ecoa_credit_decision",
+    "cfpb_fcra_permissible_purpose",
+    "cfpb_respa_settlement",
+    "cfpb_tila_apr_disclosure",
+    "cfpb_udaap",
     "fincen_beneficial_ownership",
     "fincen_ctr_threshold",
     "fincen_high_risk_jurisdiction",
@@ -61,7 +66,19 @@
     "nacha_same_day_ach_limit",
     "nacha_tpsp_authorization",
     "nacha_web_debit_authorization",
+    "occ_reg_cc_hold_period",
+    "occ_reg_e_authorization",
+    "occ_reg_o_insider_lending",
+    "occ_reg_w_affiliate_transactions",
+    "pci_dss_cvv_prohibited",
+    "pci_dss_pan_prohibited",
+    "pci_dss_tokenization_required",
     "reg_sho_locate",
+    "sec_custody_rule",
+    "sec_insider_trading",
+    "sec_reg_fd_disclosure",
+    "sec_reg_nms_best_execution",
+    "sec_volcker_rule",
     "suspicious_routing"
   ]
 }

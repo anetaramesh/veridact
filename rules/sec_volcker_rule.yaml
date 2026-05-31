@@ -1,0 +1,33 @@
+# SEC / Dodd-Frank — Volcker Rule
+# Source: Dodd-Frank Wall Street Reform Act § 619; 12 C.F.R. Part 44 (OCC)
+# Rule text: A banking entity shall not engage in proprietary trading — acquiring
+# or taking positions in financial instruments for the trading account of the
+# banking entity, as principal, for the purpose of short-term resale, benefiting
+# from actual or expected short-term price movements, or realising short-term
+# arbitrage profits.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: sec_volcker_rule
+name: Dodd-Frank § 619 — Volcker Rule (Proprietary Trading Prohibition)
+regulation_ref: "Dodd-Frank Act § 619; 12 C.F.R. Part 44; SEC/CFTC/FDIC/Fed/OCC Final Rule eff. July 21, 2015"
+description: >
+  Hard-blocks equity trades where the memo or trade type indicates proprietary
+  trading activity — trading for the banking entity's own account for short-term
+  gain, as prohibited by the Volcker Rule (Dodd-Frank § 619).
+  Covers: proprietary, prop desk, own account, principal position, short-term
+  arbitrage, trading book, market-making (when improperly documented).
+  Permitted market-making and hedging activities require documented exemption references.
+check_type: pattern_match
+action_types:
+  - equity_trade
+params:
+  field: memo
+  pattern: '(?i)(proprietary.{0,10}trad|prop.{0,5}desk|own.{0,10}account.{0,10}trad|principal.{0,10}position|short.{0,10}term.{0,10}arbitrage|trading.{0,10}book|volcker.{0,10}exempt)'
+violation_code: SEC_VOLCKER_RULE_VIOLATION
+severity: hard_block
+rationale_template: >
+  Transaction memo indicates proprietary trading activity prohibited under
+  Dodd-Frank § 619 (Volcker Rule) and 12 C.F.R. Part 44. Action hard-blocked.
+  If this trade qualifies for a permitted exemption (market-making, hedging,
+  underwriting), provide the Volcker exemption reference in the memo and resubmit
+  through the compliance approval workflow.

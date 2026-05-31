@@ -1,0 +1,34 @@
+# CFPB — UDAAP (Unfair, Deceptive, or Abusive Acts or Practices)
+# Source: Dodd-Frank Act §§ 1031, 1036; 12 U.S.C. §§ 5531, 5536
+# Rule text: It is unlawful for any covered person to engage in any unfair,
+# deceptive, or abusive act or practice in connection with any consumer
+# financial product or service. An act is unfair if it causes substantial
+# injury to consumers; deceptive if it misleads or is likely to mislead;
+# abusive if it materially interferes with the ability to understand terms.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: cfpb_udaap
+name: CFPB — UDAAP (Unfair, Deceptive, or Abusive Acts or Practices)
+regulation_ref: "Dodd-Frank §§ 1031, 1036; 12 U.S.C. §§ 5531, 5536; CFPB Examination Procedures"
+description: >
+  Hard-blocks transactions where the memo contains language indicative of
+  unfair, deceptive, or abusive conduct toward consumers. Covers deceptive
+  marketing, coercive terms, misleading fee structures, hidden charges,
+  and language that materially interferes with consumer understanding.
+  UDAAP violations are subject to CFPB enforcement and civil money penalties.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - loan_decision
+  - account_open
+params:
+  field: memo
+  pattern: '(?i)(hidden.{0,10}fee|undisclos.{0,10}charge|mislead.{0,10}term|coercive|bait.{0,10}switch|deceptive.{0,10}practic|abusive.{0,10}term|excessive.{0,10}fee|predatory|junk.{0,10}fee|gotcha|fine.{0,10}print.{0,10}trap|confusing.{0,10}term)'
+violation_code: CFPB_UDAAP_VIOLATION
+severity: hard_block
+rationale_template: >
+  Transaction memo contains language indicating potential UDAAP violation under
+  Dodd-Frank §§ 1031, 1036 (12 U.S.C. §§ 5531, 5536). Action hard-blocked.
+  Escalate to CFPB compliance counsel immediately. UDAAP violations may result
+  in civil money penalties and restitution orders from the CFPB.

@@ -1,0 +1,31 @@
+# SEC — Insider Trading Prohibition (Rule 10b-5)
+# Source: Securities Exchange Act § 10(b); SEC Rule 10b-5 (17 C.F.R. § 240.10b-5)
+# Rule text: It shall be unlawful for any person, directly or indirectly, to
+# employ any device, scheme, or artifice to defraud, or to engage in any act,
+# practice, or course of business which operates as a fraud or deceit, in
+# connection with the purchase or sale of any security.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: sec_insider_trading
+name: SEC Rule 10b-5 — Insider Trading Prohibition
+regulation_ref: "SEA § 10(b); SEC Rule 10b-5 17 C.F.R. § 240.10b-5; Insider Trading Sanctions Act 1984"
+description: >
+  Hard-blocks equity trades where the agent ID or memo contains indicators of
+  insider trading activity — trading on material non-public information,
+  trading during blackout periods, or trades attributed to insiders (officers,
+  directors, 10%+ shareholders) subject to SEC Rule 10b-5.
+  Covers: blackout period trading, insider-prefix agent IDs, tip references,
+  trades explicitly linked to MNPI or undisclosed corporate events.
+check_type: pattern_match
+action_types:
+  - equity_trade
+params:
+  field: agent_id
+  pattern: '(?i)(^INSIDER-|^BLACKOUT-|^RESTRICTED-PERIOD-|^10b5-PLAN-BREACH-|^TIPPEE-)'
+violation_code: SEC_INSIDER_TRADING
+severity: hard_block
+rationale_template: >
+  Agent ID '{agent_id}' indicates a potential insider trading violation under
+  SEC Rule 10b-5 (17 C.F.R. § 240.10b-5). Action hard-blocked. Escalate to
+  legal counsel and the compliance desk immediately. Do not proceed with the
+  trade. SEC enforcement and criminal referral may apply.

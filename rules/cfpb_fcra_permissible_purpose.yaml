@@ -1,0 +1,35 @@
+# CFPB — FCRA Permissible Purpose (Fair Credit Reporting Act)
+# Source: FCRA 15 U.S.C. §§ 1681-1681x; Reg V 12 C.F.R. § 1022
+# Rule text: A person may not obtain a consumer report for any purpose unless
+# that purpose is a permissible purpose listed in FCRA § 604 (15 U.S.C. § 1681b).
+# Permissible purposes include: credit transactions, employment, insurance
+# underwriting, tenant screening, and court orders.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: cfpb_fcra_permissible_purpose
+name: CFPB / FCRA — Credit Pull Permissible Purpose (Regulation V)
+regulation_ref: "FCRA 15 U.S.C. § 1681b; Reg V 12 C.F.R. § 1022; CFPB Reg V"
+description: >
+  Blocks loan decisions and account openings where the permissible purpose
+  reference for the consumer credit pull is absent.
+  Under FCRA § 604 (15 U.S.C. § 1681b), consumer credit reports may only be
+  accessed for permissible purposes. AI agents must include a documented
+  permissible purpose reference and consumer consent reference before
+  initiating any credit check.
+check_type: required_fields
+action_types:
+  - loan_decision
+  - account_open
+params:
+  required:
+    - customer_id
+    - account_id
+    - permissible_purpose_ref
+    - credit_pull_consent_ref
+violation_code: CFPB_FCRA_PERMISSIBLE_PURPOSE_MISSING
+severity: hard_block
+rationale_template: >
+  Credit transaction is missing required FCRA permissible purpose documentation:
+  {missing_fields}. Blocked under FCRA § 604 (15 U.S.C. § 1681b) and Reg V
+  (12 C.F.R. § 1022). Unpermissioned credit pulls violate FCRA and may result
+  in civil liability ($100–$1,000 per violation plus actual damages).

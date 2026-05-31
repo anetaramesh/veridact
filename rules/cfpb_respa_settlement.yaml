@@ -1,0 +1,32 @@
+# CFPB — RESPA (Real Estate Settlement Procedures Act)
+# Source: RESPA 12 U.S.C. §§ 2601-2617; Reg X 12 C.F.R. § 1024
+# Rule text: Lenders must provide borrowers with a Loan Estimate (LE) within
+# 3 business days of application and a Closing Disclosure (CD) at least 3
+# business days before consummation. Kickbacks and unearned fees are prohibited.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: cfpb_respa_settlement
+name: CFPB / RESPA — Settlement Disclosure Requirements (Regulation X)
+regulation_ref: "RESPA 12 U.S.C. §§ 2601-2617; Reg X 12 C.F.R. § 1024; TRID eff. October 3, 2015"
+description: >
+  Flags loan decisions and account openings where required RESPA settlement
+  disclosures are absent — Loan Estimate reference and Closing Disclosure
+  reference must be present for real-estate-related loan transactions.
+  Implements: RESPA / Reg X TRID (TILA-RESPA Integrated Disclosure) Rule.
+check_type: required_fields
+action_types:
+  - loan_decision
+  - account_open
+params:
+  required:
+    - customer_id
+    - account_id
+    - loan_estimate_ref
+    - closing_disclosure_ref
+violation_code: CFPB_RESPA_DISCLOSURE_MISSING
+severity: flag
+rationale_template: >
+  Loan transaction is missing required RESPA settlement disclosures: {missing_fields}.
+  Flagged under RESPA (12 U.S.C. § 2604) and Reg X (12 C.F.R. § 1024.6).
+  Provide Loan Estimate and Closing Disclosure references. Failure to deliver
+  TRID disclosures within regulatory timeframes constitutes a RESPA violation.

@@ -74,7 +74,39 @@ const NACHA_FILES = [
   'nacha_tpsp_authorization.yaml',
 ]
 
-const ALL_RULE_FILES = [...FINRA_FILES, ...GATEWAY_FILES, ...FINCEN_BSA_FILES, ...NACHA_FILES]
+const SEC_FILES = [
+  'sec_reg_fd_disclosure.yaml',
+  'sec_insider_trading.yaml',
+  'sec_reg_nms_best_execution.yaml',
+  'sec_volcker_rule.yaml',
+  'sec_custody_rule.yaml',
+]
+
+const CFPB_FILES = [
+  'cfpb_tila_apr_disclosure.yaml',
+  'cfpb_respa_settlement.yaml',
+  'cfpb_udaap.yaml',
+  'cfpb_fcra_permissible_purpose.yaml',
+  'cfpb_ecoa_credit_decision.yaml',
+]
+
+const OCC_FED_FILES = [
+  'occ_reg_e_authorization.yaml',
+  'occ_reg_cc_hold_period.yaml',
+  'occ_reg_o_insider_lending.yaml',
+  'occ_reg_w_affiliate_transactions.yaml',
+]
+
+const PCI_DSS_FILES = [
+  'pci_dss_pan_prohibited.yaml',
+  'pci_dss_cvv_prohibited.yaml',
+  'pci_dss_tokenization_required.yaml',
+]
+
+const ALL_RULE_FILES = [
+  ...FINRA_FILES, ...GATEWAY_FILES, ...FINCEN_BSA_FILES, ...NACHA_FILES,
+  ...SEC_FILES, ...CFPB_FILES, ...OCC_FED_FILES, ...PCI_DSS_FILES,
+]
 
 // Action-type coverage matrix — ✓ covered, — not applicable
 const COVERAGE_MATRIX = [
@@ -324,6 +356,54 @@ export default function RuleEditor({ apiBase }) {
           title="Nacha — ACH Network Rules"
           badge={`${countApplied(NACHA_FILES)} / ${NACHA_FILES.length}`}
           files={NACHA_FILES}
+          appliedStatus={appliedStatus}
+          toggling={toggling}
+          onSelect={handleSelectFile}
+          onToggle={handleToggle}
+          defaultOpen={true}
+        />
+
+        {/* ── SEC sub-section ── */}
+        <RuleSection
+          title="SEC — Securities & Exchange Commission"
+          badge={`${countApplied(SEC_FILES)} / ${SEC_FILES.length}`}
+          files={SEC_FILES}
+          appliedStatus={appliedStatus}
+          toggling={toggling}
+          onSelect={handleSelectFile}
+          onToggle={handleToggle}
+          defaultOpen={true}
+        />
+
+        {/* ── CFPB sub-section ── */}
+        <RuleSection
+          title="CFPB — Consumer Financial Protection Bureau"
+          badge={`${countApplied(CFPB_FILES)} / ${CFPB_FILES.length}`}
+          files={CFPB_FILES}
+          appliedStatus={appliedStatus}
+          toggling={toggling}
+          onSelect={handleSelectFile}
+          onToggle={handleToggle}
+          defaultOpen={true}
+        />
+
+        {/* ── OCC / Fed sub-section ── */}
+        <RuleSection
+          title="OCC / Federal Reserve — Bank Regulations"
+          badge={`${countApplied(OCC_FED_FILES)} / ${OCC_FED_FILES.length}`}
+          files={OCC_FED_FILES}
+          appliedStatus={appliedStatus}
+          toggling={toggling}
+          onSelect={handleSelectFile}
+          onToggle={handleToggle}
+          defaultOpen={true}
+        />
+
+        {/* ── PCI DSS sub-section ── */}
+        <RuleSection
+          title="PCI DSS — Payment Card Industry Security"
+          badge={`${countApplied(PCI_DSS_FILES)} / ${PCI_DSS_FILES.length}`}
+          files={PCI_DSS_FILES}
           appliedStatus={appliedStatus}
           toggling={toggling}
           onSelect={handleSelectFile}

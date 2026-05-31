@@ -1,0 +1,35 @@
+# PCI DSS — CVV / CVC Storage and Transmission Prohibited
+# Source: PCI DSS v4.0 Requirement 3.2.1
+# Rule text: Sensitive authentication data (SAD) — including CAV2/CVC2/CVV2/CID
+# (the 3-4 digit security code) — must not be stored after authorisation, even
+# if encrypted. It must not appear in transaction parameters, logs, or memos.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: pci_dss_cvv_prohibited
+name: PCI DSS v4.0 Req 3.2.1 — CVV/CVC Security Code Prohibited in Parameters
+regulation_ref: "PCI DSS v4.0 Requirement 3.2.1; PCI SSC SAD prohibition eff. March 31, 2024"
+description: >
+  Hard-blocks any transaction where the memo or note field contains a CVV,
+  CVC, CVV2, CVC2, or CID security code — the 3-4 digit card verification
+  value printed on payment cards. Under PCI DSS Requirement 3.2.1, sensitive
+  authentication data (SAD) must never be stored, transmitted, or logged after
+  authorisation, even if encrypted.
+  Detects: explicit CVV/CVC labels followed by digits, security code patterns
+  in memo context.
+check_type: pattern_match
+action_types:
+  - wire_transfer
+  - ach_payment
+  - check_issuance
+  - internal_transfer
+params:
+  field: memo
+  pattern: '(?i)(cvv\s*[=:]\s*\d{3,4}|cvc\s*[=:]\s*\d{3,4}|cvv2\s*[=:]\s*\d{3,4}|cvc2\s*[=:]\s*\d{3,4}|cid\s*[=:]\s*\d{3,4}|security.{0,10}code\s*[=:]\s*\d{3,4}|card.{0,10}verif.{0,10}\d{3,4})'
+violation_code: PCI_DSS_CVV_IN_PARAMETERS
+severity: hard_block
+rationale_template: >
+  Transaction memo contains a CVV/CVC/security code value. Hard-blocked under
+  PCI DSS v4.0 Requirement 3.2.1 — sensitive authentication data must not be
+  stored, transmitted, or logged after authorisation. Remove the security code
+  from the transaction parameters. Report to the PCI compliance officer and
+  conduct an immediate scope review.

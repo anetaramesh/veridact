@@ -1,0 +1,32 @@
+# OCC / Federal Reserve — Regulation CC (Expedited Funds Availability Act)
+# Source: Expedited Funds Availability Act 12 U.S.C. §§ 4001-4010; Reg CC 12 C.F.R. Part 229
+# Rule text: Depository institutions must make funds available for withdrawal
+# within specific time frames. For local checks, funds must be available by the
+# next business day. Extended holds beyond 5 business days require specific
+# exception conditions.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: occ_reg_cc_hold_period
+name: OCC / Fed — Regulation CC — Maximum Check Hold Period (5 Business Days)
+regulation_ref: "EFAA 12 U.S.C. § 4002; Reg CC 12 C.F.R. § 229.13; eff. July 1, 2018 (amended)"
+description: >
+  Flags check issuance transactions where the proposed hold period exceeds
+  5 business days. Under Reg CC, standard exception holds on checks may not
+  exceed 5 business days without specific documented justification (new account,
+  large deposit exception, repeated overdraft, reasonable cause to doubt
+  collectability, or emergency conditions).
+  Implements: Reg CC 12 C.F.R. § 229.13 (Exception Holds).
+check_type: threshold
+action_types:
+  - check_issuance
+params:
+  field: hold_days
+  max_value: 5
+violation_code: OCC_REG_CC_HOLD_EXCEEDED
+severity: flag
+rationale_template: >
+  Proposed check hold period of {hold_days} business days exceeds the 5-day
+  Reg CC maximum under 12 C.F.R. § 229.13. Flagged for supervisory review.
+  Document the specific exception condition justifying the extended hold
+  (new account, large deposit, repeated overdraft, or reasonable cause)
+  before applying a hold exceeding 5 business days.

@@ -1,0 +1,32 @@
+# SEC — Regulation NMS Best Execution
+# Source: SEC Reg NMS Release 34-51808 (17 C.F.R. §§ 242.600-242.612); eff. June 29, 2005
+# Rule text: Broker-dealers must execute customer orders at the best available
+# price across all national market system trading centres. Order routing
+# documentation must be maintained.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: sec_reg_nms_best_execution
+name: SEC Regulation NMS — Best Execution & Order Routing Documentation
+regulation_ref: "SEC Reg NMS 17 C.F.R. §§ 242.600-242.612; Release 34-51808 eff. June 29, 2005"
+description: >
+  Flags equity trades where the required best-execution acknowledgement
+  reference or order routing justification is missing.
+  Under Reg NMS, broker-dealers must route equity orders to the national market
+  venue offering the best price (NBBO). Documentation of routing decisions
+  and best-execution review must be maintained per Rule 606 and Rule 607.
+  Implements: Reg NMS Rules 600, 606, 607, and 611 (Order Protection Rule).
+check_type: required_fields
+action_types:
+  - equity_trade
+params:
+  required:
+    - customer_id
+    - account_id
+    - order_routing_ref
+    - best_execution_ref
+violation_code: SEC_BEST_EXECUTION_MISSING
+severity: flag
+rationale_template: >
+  Equity trade is missing required best-execution documentation: {missing_fields}.
+  Flagged under SEC Reg NMS (17 C.F.R. § 242.606). Provide order routing
+  reference and best-execution acknowledgement before executing.

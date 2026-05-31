@@ -1,0 +1,31 @@
+# OCC / Federal Reserve — Regulation O (Loans to Insiders)
+# Source: Federal Reserve Act § 22; Reg O 12 C.F.R. Part 215
+# Rule text: Member banks must limit credit extensions to executive officers,
+# directors, and principal shareholders. Extensions of credit to insiders
+# must be on substantially the same terms as those offered to the general public
+# and must not involve more than the normal risk of repayment.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: occ_reg_o_insider_lending
+name: OCC / Fed — Regulation O — Insider Lending Limit
+regulation_ref: "Federal Reserve Act § 22(g)(h); Reg O 12 C.F.R. Part 215; eff. ongoing"
+description: >
+  Places a soft hold on insider loans exceeding $100,000 to executive officers
+  or principal shareholders (10%+ ownership). Under Reg O, extensions of credit
+  to insiders above this threshold require prior board approval and must be
+  on terms no more favourable than those offered to other customers.
+  Implements: Reg O 12 C.F.R. § 215.4 (General Prohibitions on Loans to Insiders).
+check_type: threshold
+action_types:
+  - loan_decision
+params:
+  field: insider_loan_amount
+  max_value: 100000
+violation_code: OCC_REG_O_INSIDER_LIMIT_EXCEEDED
+severity: soft_hold
+rationale_template: >
+  Insider loan amount ${insider_loan_amount} exceeds the $100,000 Reg O
+  threshold for executive officer / principal shareholder lending under
+  12 C.F.R. § 215.4. Transaction placed on soft hold. Prior written board
+  approval is required. Confirm that loan terms are no more favourable than
+  those offered to non-insider customers before proceeding.

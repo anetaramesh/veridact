@@ -1,0 +1,35 @@
+# SEC — Investment Adviser Custody Rule
+# Source: Investment Advisers Act § 206(4); SEC Rule 206(4)-2 (17 C.F.R. § 275.206(4)-2)
+# Effective: March 12, 2010 (amended)
+# Rule text: An investment adviser that has custody of client funds or securities
+# must maintain those assets with a qualified custodian, provide account statements,
+# and undergo annual surprise examination by an independent accountant.
+# ⚠ REGULATORY COUNSEL REVIEW REQUIRED before deploying to production.
+
+id: sec_custody_rule
+name: SEC Rule 206(4)-2 — Investment Adviser Custody Requirements
+regulation_ref: "Advisers Act § 206(4); SEC Rule 206(4)-2 17 C.F.R. § 275.206(4)-2; eff. March 12, 2010"
+description: >
+  Flags equity trades and account openings where the required qualified custodian
+  reference or adviser registration reference is absent.
+  Under SEC Rule 206(4)-2, registered investment advisers with custody of
+  client assets must use a qualified custodian and maintain documented custody
+  arrangements. AI agents acting as investment advisers must include custodian
+  and adviser registration references in all transactions.
+check_type: required_fields
+action_types:
+  - equity_trade
+  - account_open
+params:
+  required:
+    - customer_id
+    - account_id
+    - qualified_custodian_ref
+    - adviser_registration_ref
+violation_code: SEC_CUSTODY_RULE_MISSING
+severity: flag
+rationale_template: >
+  Transaction is missing required custody documentation: {missing_fields}.
+  Flagged under SEC Rule 206(4)-2 (17 C.F.R. § 275.206(4)-2).
+  Provide qualified custodian reference and adviser registration reference
+  to confirm compliance with the investment adviser custody requirements.
